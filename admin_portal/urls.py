@@ -1,0 +1,86 @@
+from django.urls import path
+from .views import (
+                     admin_dashboard, teacher_register,
+                     student_register, schedule_create_view, delete_schedule_view,
+                     delete_subject, edit_subject,
+                     reward_report_view, reset_user_password,
+                     reward_report_detail, reward_settings_top,
+                     reward_category_list, reward_category_edit,
+                     student_reward_list, student_reward_edit,
+                     reward_category_create, account_status_list,
+                     unlock_user, reset_fail_count, reset_locked_account, teacher_list_view,
+                     teacher_detail_view, teacher_edit_view,
+                     student_list_view, student_detail_view,
+                     student_edit_view, reward_close_create_view,
+                     reward_close_detail_view, reward_close_export_csv,
+                     reward_close_export_pdf, schedule_bulk_update_view,
+                     import_teachers_view, import_students_view,
+                     reward_report_pdf, assignment_list_view,
+                     assignment_create_view, assignment_delete_view,
+                     assignment_manage_teacher, assignment_manage_student,
+                     assignment_bulk_view, assignment_template_csv, attendance_dashboard,
+                     assignment_subjects_edit, access_log_list_view,
+                     karte_reopen_view, schedule_board_view, karte_pdf_admin, karte_view_admin,
+                     )
+from personal_info.views import edit_schedule_view
+
+app_name = "admin_portal"
+
+urlpatterns = [
+    path('admin_dashboard/', admin_dashboard, name='admin_dashboard'),
+    path('teacher_register/', teacher_register, name='teacher_register'),
+    path('student_register/', student_register, name='student_register'),
+    path("schedules/board/", schedule_board_view, name="schedule_board"),
+    path('schedule/create/', schedule_create_view, name='schedule_create'),
+    path('schedule/edit/<int:schedule_id>/', edit_schedule_view, name='edit_schedule'),
+    path('schedule/delete/<int:schedule_id>/', delete_schedule_view, name='delete_schedule'),
+    path('schedules/<int:schedule_id>/karte/pdf/', karte_pdf_admin, name='karte_pdf_admin'),
+    path('schedules/<int:schedule_id>/karte/', karte_view_admin, name='karte_view_admin'),
+    path('subjects_delete/<int:subject_id>/', delete_subject, name='delete_subject'),
+    path('subjects_edit/<int:subject_id>/', edit_subject, name='edit_subject'),
+    path('reward-report/', reward_report_view, name='reward_report'),
+    path('reward-report/pdf/', reward_report_pdf, name='reward_report_pdf'),
+    path('reward-report/<int:teacher_id>/', reward_report_detail, name='reward_report_detail'),
+    path('reset_password/<int:user_id>/', reset_user_password, name='reset_user_password'),
+    path('reward-settings/', reward_settings_top, name='reward_settings_top'),
+    path('reward-settings/categories/', reward_category_list, name='reward_category_list'),
+    path('reward-settings/categories/<int:pk>/edit/', reward_category_edit, name='reward_category_edit'),
+    path('reward-settings/students/', student_reward_list, name='student_reward_list'),
+    path('reward-settings/students/<int:pk>/edit/', student_reward_edit, name='student_reward_edit'),
+    path('reward-settings/categories/new/', reward_category_create, name='reward_category_create'),
+    path('accounts/status/', account_status_list, name='account_status_list'),
+    path('accounts/<int:user_id>/unlock/', unlock_user, name='unlock_user'),
+    path('accounts/<int:user_id>/reset-fails/', reset_fail_count, name='reset_fail_count'),
+    path('accounts/<int:user_id>/reset-password/', reset_locked_account, name='reset_locked_account'),
+    # 講師 一覧/詳細/編集
+    path('teachers/', teacher_list_view, name='teacher_list'),
+    path('teachers/<int:pk>/', teacher_detail_view, name='teacher_detail'),
+    path('teachers/<int:pk>/edit/', teacher_edit_view, name='teacher_edit'),
+
+    # 生徒 一覧/詳細/編集
+    path('students/', student_list_view, name='student_list'),
+    path('students/<int:pk>/', student_detail_view, name='student_detail'),
+    path('students/<int:pk>/edit/', student_edit_view, name='student_edit'),
+    path('reward/close/create/', reward_close_create_view, name='reward_close_create'),
+    path('reward/close/<int:closing_id>/', reward_close_detail_view, name='reward_close_detail'),
+    path('reward/close/<int:closing_id>/csv/', reward_close_export_csv, name='reward_close_export_csv'),
+    path('reward/close/<int:closing_id>/pdf/', reward_close_export_pdf, name='reward_close_export_pdf'),
+    path('schedule/bulk/', schedule_bulk_update_view, name='schedule_bulk'),
+
+    path('import/teachers/', import_teachers_view, name='import_teachers'),
+    path('import/students/', import_students_view, name='import_students'),
+    path('access-logs/', access_log_list_view, name='access_logs'),
+    path("karte/<int:karte_id>/reopen/", karte_reopen_view, name="karte_reopen"),
+]
+
+urlpatterns += [
+    path("assignments/", assignment_list_view, name="assignment_list"),
+    path("assignments/create/", assignment_create_view, name="assignment_create"),
+    path("assignments/<int:pk>/delete/", assignment_delete_view, name="assignment_delete"),
+    path("assignments/<int:assignment_id>/subjects/", assignment_subjects_edit, name="assignment_subjects_edit"),
+    path("assignments/teacher/<int:teacher_id>/", assignment_manage_teacher, name="assignment_manage_teacher"),
+    path("assignments/student/<int:student_id>/", assignment_manage_student, name="assignment_manage_student"),
+    path("assignments/bulk/", assignment_bulk_view, name="assignment_bulk"),
+    path("assignments/template.csv", assignment_template_csv, name="assignment_template_csv"),
+    path("dash/attendance/", attendance_dashboard, name="attendance_dashboard"),
+]

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}教材を新規登録{% endblock %}
+
+{% block content %}
+<h1 class="mb-3">教材を新規登録</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {% include "_form_errors.html" %}
+
+  {{ form.as_p }}
+
+  {# 戻り先（カルテ編集）を持ち回る #}
+  {% if next %}
+    <input type="hidden" name="next" value="{{ next }}">
+  {% endif %}
+
+  <div class="d-flex gap-2 mt-3">
+    <button type="submit" class="btn btn-primary">登録</button>
+    <a href="{{ next|default:request.META.HTTP_REFERER }}" class="btn btn-outline-secondary">戻る</a>
+  </div>
+</form>
+{% endblock %}

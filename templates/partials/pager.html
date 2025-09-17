@@ -1,0 +1,13 @@
+{% if page.has_other_pages %}
+<nav>
+  <ul class="pagination pagination-sm">
+    {% if page.has_previous %}
+      <li class="page-item"><a class="page-link" href="?{{ param }}={{ page.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">«</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">{{ page.number }}/{{ page.paginator.num_pages }}</span></li>
+    {% if page.has_next %}
+      <li class="page-item"><a class="page-link" href="?{{ param }}={{ page.next_page_number }}{% if q %}&q={{ q }}{% endif %}">»</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}

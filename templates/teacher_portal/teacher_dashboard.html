@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}講師メニュー{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h1 class="h4 mb-3">講師メニュー</h1>
+    <p class="text-muted">担当生徒の情報確認や授業情報の編集が行えます。</p>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{% url 'teacher_portal:schedule_board' %}" class="btn btn-primary">担当授業一覧</a>
+      {% if next_schedule %}
+        <a href="{% url 'teacher_portal:teacher_edit_schedule' schedule_id=next_schedule.id %}" class="btn btn-outline-secondary">次の授業を編集</a>
+        <a href="{% url 'teacher_portal:karte_input' schedule_id=next_schedule.id %}" class="btn btn-outline-secondary">次の授業カルテ</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

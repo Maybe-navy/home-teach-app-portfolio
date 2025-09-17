@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}アクセスが拒否されました (403){% endblock %}
+{% block content %}
+<div class="text-center my-5">
+  <h1 class="display-6 mb-3">403 Forbidden</h1>
+  <p class="text-muted">このページにアクセスする権限がありません。</p>
+  <a class="btn btn-primary mt-3" href="{% url 'home' %}">ホームへ戻る</a>
+  </div>
+{% endblock %}
+

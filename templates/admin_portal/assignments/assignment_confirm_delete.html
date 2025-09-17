@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}担当講師割当の削除{% endblock %}
+{% block content %}
+<div class="card"><div class="card-body">
+  <h1 class="h4 mb-3">担当講師割当の削除</h1>
+  <p>{{ obj.teacher.name }} → {{ obj.student.name }} の割当を削除しますか？</p>
+  <form method="post" class="d-flex gap-2">{% csrf_token %}
+    <button class="btn btn-danger" type="submit">削除する</button>
+    <a class="btn btn-outline-secondary" href="{% url 'admin_portal:assignment_list' %}">キャンセル</a>
+  </form>
+</div></div>
+{% endblock %}
+

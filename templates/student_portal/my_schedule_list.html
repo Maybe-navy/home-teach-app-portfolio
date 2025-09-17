@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}自分の授業予定{% endblock %}
+{% block content %}
+  <h1>自分の授業予定</h1>
+  <p>生徒: <strong>{{ student.name }}</strong></p>
+  {% if schedules %}
+    <table>
+      <thead><tr><th>予定日</th><th>開始</th><th>終了</th><th>講師名</th><th>科目名</th></tr></thead>
+      <tbody>
+        {% for sc in schedules %}
+          <tr>
+            <td>{{ sc.class_date|date:"Y-m-d" }}</td>
+            <td>{{ sc.start_time|time:"H:i" }}</td>
+            <td>{{ sc.end_time|time:"H:i" }}</td>
+            <td>{{ sc.teacher.name }}</td>
+            <td>{% if sc.subject %}{{ sc.subject.name }}{% else %}-{% endif %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>予定はありません。</p>
+  {% endif %}
+{% endblock %}

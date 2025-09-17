@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}カルテ確定の確認{% endblock %}
+{% block content %}
+<div class="card"><div class="card-body">
+  <h1 class="h5 mb-3">カルテ確定の確認</h1>
+  <p>カルテを確定すると、この授業の実績も確定され、講師側からは再編集できなくなります。よろしいですか？</p>
+  <form method="post">{% csrf_token %}
+    <button class="btn btn-primary">確定する</button>
+    <a class="btn btn-link" href="javascript:history.back()">戻る</a>
+  </form>
+</div></div>
+{% endblock %}

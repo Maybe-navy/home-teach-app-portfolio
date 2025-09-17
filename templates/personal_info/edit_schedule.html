@@ -1,0 +1,30 @@
+<!-- templates/personal_info/edit_schedule.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>授業スケジュールの編集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 必要に応じて Bootstrap などのCSSを読み込み -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">授業スケジュールの編集</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            {% include "_form_errors.html" %}
+            {{ form.as_p }}
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <a href="{% url 'admin_portal:schedule_board' %}" class="btn btn-secondary">戻る</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- JavaScript（必要であれば） -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

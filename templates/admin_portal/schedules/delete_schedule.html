@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}授業削除{% endblock %}
+{% block content %}
+
+<h1 class="h5 mb-3">授業を削除しますか？</h1>
+
+<div class="card mb-3"><div class="card-body">
+  <dl class="row mb-0">
+    <dt class="col-sm-3">授業日</dt><dd class="col-sm-9">{{ schedule.class_date }}</dd>
+    <dt class="col-sm-3">時間</dt><dd class="col-sm-9">{{ schedule.start_time }} - {{ schedule.end_time }}</dd>
+    <dt class="col-sm-3">生徒</dt><dd class="col-sm-9">{{ schedule.student.name }}</dd>
+    <dt class="col-sm-3">講師</dt><dd class="col-sm-9">{{ schedule.teacher.name }}</dd>
+  </dl>
+</div></div>
+
+<form method="post" class="d-flex gap-2">
+  {% csrf_token %}
+  <button class="btn btn-danger" type="submit">削除する</button>
+  <a class="btn btn-outline-secondary" href="{% url 'admin_portal:schedule_board' %}">キャンセル</a>
+</form>
+
+{% endblock %}
+

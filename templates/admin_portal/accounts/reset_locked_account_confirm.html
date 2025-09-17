@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}パスワードリセットの確認{% endblock %}
+{% block content %}
+<div class="card"><div class="card-body">
+  <h1 class="h5 mb-3">パスワードリセットの確認</h1>
+  <p class="mb-2">対象ユーザー: <strong>{{ target.username }}</strong>{% if target.email %}（{{ target.email }}）{% endif %}</p>
+  {% if is_locked %}
+    <div class="alert alert-warning">このアカウントは現在ロック状態です。リセット後にロックは解除されます。</div>
+  {% endif %}
+
+  <div class="mb-3">
+    <label class="form-label">初期パスワード（コピーしてください）</label>
+    <input type="text" class="form-control" value="{{ generated_password }}" readonly onclick="this.select()">
+    <div class="form-text">※ この画面でのみ表示されます。必ず控えてください。</div>
+  </div>
+
+  <form method="post" class="d-print-none">{% csrf_token %}
+    <input type="hidden" name="token" value="{{ token }}">
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="copied" id="copied">
+      <label class="form-check-label" for="copied">初期パスワードを控えました</label>
+    </div>
+    <button class="btn btn-primary">この初期パスワードでリセットする</button>
+    <a class="btn btn-link" href="{% url 'admin_portal:account_status_list' %}">戻る</a>
+  </form>
+</div></div>
+{% endblock %}
+

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}講師一覧{% endblock %}
+{% block content %}
+<h1 class="mb-3">講師一覧</h1>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-auto">
+    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="氏名/電話/メールで検索">
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary" type="submit">検索</button>
+  </div>
+  <div class="col-auto">
+    <a href="{% url 'admin_portal:admin_dashboard' %}" class="btn btn-outline-secondary">管理者トップ</a>
+  </div>
+  </form>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>氏名</th><th>ユーザーID</th><th>ID</th><th>性別</th><th>年齢</th><th>学校/学年</th><th>メール</th><th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for t in teachers %}
+    <tr>
+      <td>{{ t.name }}</td>
+      <td>{{ t.user.username }}</td>
+      <td>{{ t.id }}</td>
+      <td>{{ t.get_gender_display }}</td>
+      <td>{{ t.age }}</td>
+      <td>{{ t.school }} / {{ t.get_grade_display }}</td>
+      <td>{{ t.email }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_portal:teacher_detail' t.pk %}">詳細</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:teacher_edit' t.pk %}">編集</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:schedule_board' %}?q={{ t.name|urlencode }}">予定</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6" class="text-muted">講師が登録されていません。</td></tr>
+  {% endfor %}
+  </tbody>
+  </table>
+
+<nav>
+  <ul class="pagination">
+    {% if teachers.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ teachers.previous_page_number }}&q={{ q }}">前へ</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">{{ teachers.number }} / {{ teachers.paginator.num_pages }}</span></li>
+    {% if teachers.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ teachers.next_page_number }}&q={{ q }}">次へ</a></li>
+    {% endif %}
+  </ul>
+  </nav>
+{% endblock %}
+

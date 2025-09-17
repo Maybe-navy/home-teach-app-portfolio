@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}講師割当（講師→生徒）{% endblock %}
+{% block content %}
+<div class="card"><div class="body">
+  <h1>講師に生徒を割当: {{ teacher.name }}</h1>
+  <a class="btn btn-outline-secondary float-end" href="{% url 'admin_portal:assignment_template_csv' %}">CSVテンプレートDL</a>
+  <form method="get" class="mb-3">
+    <input type="text" name="q" value="{{ q }}" placeholder="検索">
+    <label class="ms-2"><input type="checkbox" name="only_unassigned" value="1" {% if only_unassigned %}checked{% endif %}> 未割当のみ</label>
+    <button class="btn btn-sm btn-outline-secondary">絞り込み</button>
+  </form>
+  <form method="post" class="toolbar d-flex gap-2">{% csrf_token %}
+    <select name="student" required class="form-select">
+      <option value="">生徒を選択</option>
+      {% for s in students %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-primary">追加</button>
+    <a class="btn btn-outline" href="{% url 'admin_portal:assignment_list' %}">一覧へ</a>
+  </form>
+  <h2>現在の割当</h2>
+  <form method="post">{% csrf_token %}
+  <table class="table table-hover table-sm align-middle table-sticky"><thead><tr><th class="d-print-none"><input type="checkbox" onclick="for(const c of document.querySelectorAll('.chk')) c.checked=this.checked"></th><th>生徒</th></tr></thead>
+    <tbody>
+      {% for a in current %}
+      <tr>
+        <td class="d-print-none"><input type="checkbox" class="chk" name="ids" value="{{ a.id }}"></td>
+        <td>{{ a.student.name }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="2">割当なし</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="d-print-none"><button class="btn btn-danger" name="bulk_remove" value="1">選択解除</button></div>
+  </form>
+</div></div>
+{% endblock %}
+

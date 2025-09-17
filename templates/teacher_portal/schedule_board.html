@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}担当授業（未実施 / 保留 / 実施済）{% endblock %}
+{% block content %}
+<h1 class="h5 mb-3">担当授業</h1>
+
+<form class="row g-2 mb-3">
+  <div class="col-auto"><input class="form-control" name="q" value="{{ q }}" placeholder="生徒/科目で検索"></div>
+  <div class="col-auto"><button class="btn btn-outline-secondary">絞り込み</button></div>
+</form>
+
+{% if student_search_results %}
+  <div class="mb-4">
+    <h2 class="h6">生徒検索結果</h2>
+    <div class="list-group">
+      {% for result in student_search_results %}
+        <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <strong>{{ result.student.name }}</strong>
+            {% if result.is_assigned %}
+              <span class="badge text-bg-success ms-2">担当</span>
+            {% else %}
+              <span class="badge text-bg-secondary ms-2">担当外</span>
+            {% endif %}
+          </div>
+          <div>
+            {% if result.access_token %}
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'teacher_portal:student_schedule_list' result.student.id %}?access={{ result.access_token }}">予定を見る</a>
+            {% else %}
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'teacher_portal:student_schedule_list' result.student.id %}">予定を見る</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <p class="text-muted small mt-2">担当外の生徒は検索経由で開いた場合のみ、5分間閲覧できます。</p>
+  </div>
+{% elif q %}
+  <div class="alert alert-warning">生徒名に一致する検索結果はありません。</div>
+{% endif %}
+
+<div class="mb-4">
+  <h2 class="h6">未実施</h2>
+  <table class="table table-sm table-hover align-middle">
+    <thead><tr><th>日付</th><th>時間</th><th>生徒</th><th>科目</th><th>講師</th><th>操作</th></tr></thead>
+    <tbody>
+      {% for s in p2 %}
+      <tr>
+        <td>{{ s.class_date|date:"Y-m-d" }}</td>
+        <td>{{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}</td>
+        <td>{{ s.student.name }}</td>
+        <td>{% if s.subject %}{{ s.subject.name }}{% else %}-{% endif %}</td>
+        <td>{% if s.teacher %}{{ s.teacher.name }}{% else %}-{% endif %}</td>
+        <td class="text-nowrap">
+          {% if s.teacher_id == teacher_profile.id or s.student_id in assigned_student_ids %}
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:teacher_edit_schedule' s.id %}">編集</a>
+            {% if s.teacher_id == teacher_profile.id %}
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:karte_input' s.id %}">カルテ</a>
+            {% endif %}
+          {% endif %}
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:student_schedule_list' s.student.id %}">生徒の予定</a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="text-muted">該当なし</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% include "partials/pager.html" with page=p2 param="p2" %}
+</div>
+
+<div class="mb-4">
+  <h2 class="h6">保留（時間未決定など）</h2>
+  <table class="table table-sm table-hover align-middle">
+    <thead><tr><th>生徒</th><th>科目</th><th>日付</th><th>時間</th><th>講師</th><th>操作</th></tr></thead>
+    <tbody>
+      {% for s in p1 %}
+      <tr>
+        <td>{{ s.student.name }}</td>
+        <td>{% if s.subject %}{{ s.subject.name }}{% else %}-{% endif %}</td>
+        <td>{% if s.class_date %}{{ s.class_date|date:"Y-m-d" }}{% else %}<span class="text-muted">未決定</span>{% endif %}</td>
+        <td>
+          {% if s.start_time and s.end_time %}
+            {{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}
+          {% else %}<span class="text-muted">未決定</span>{% endif %}
+        </td>
+        <td>{% if s.teacher %}{{ s.teacher.name }}{% else %}-{% endif %}</td>
+        <td class="text-nowrap">
+          {% if s.teacher_id == teacher_profile.id or s.student_id in assigned_student_ids %}
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:teacher_edit_schedule' s.id %}">編集</a>
+          {% endif %}
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:student_schedule_list' s.student.id %}">生徒の予定</a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="text-muted">該当なし</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% include "partials/pager.html" with page=p1 param="p1" %}
+</div>
+
+<div class="mb-4">
+  <h2 class="h6">実施済</h2>
+  <table class="table table-sm table-hover align-middle">
+    <thead><tr><th>日付</th><th>時間</th><th>生徒</th><th>科目</th><th>講師</th><th>操作</th></tr></thead>
+    <tbody>
+      {% for s in p3 %}
+      <tr>
+        <td>{{ s.class_date|date:"Y-m-d" }}</td>
+        <td>{{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}</td>
+        <td>{{ s.student.name }}</td>
+        <td>{% if s.subject %}{{ s.subject.name }}{% else %}-{% endif %}</td>
+        <td>{% if s.teacher %}{{ s.teacher.name }}{% else %}-{% endif %}</td>
+        <td class="text-nowrap">
+          {% if s.teacher_id == teacher_profile.id %}
+            {% if s.karte and s.karte.is_confirmed %}
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:karte_view' s.id %}">カルテ閲覧</a>
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:karte_pdf' s.id %}">PDF</a>
+            {% else %}
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:karte_input' s.id %}">カルテ</a>
+            {% endif %}
+          {% endif %}
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'teacher_portal:student_schedule_list' s.student.id %}">生徒の予定</a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="text-muted">該当なし</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% include "partials/pager.html" with page=p3 param="p3" %}
+</div>
+
+<a class="btn btn-link px-0" href="{% url 'teacher_portal:teacher_dashboard' %}">← 講師メニューに戻る</a>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}講師別報酬明細{% endblock %}
+{% block content %}
+
+<h1 class="h5 mb-3">講師別報酬明細</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-auto">
+    <label class="form-label">対象月</label>
+    <input class="form-control" type="month" name="ym" value="{{ selected_ym }}">
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary" type="submit">表示</button>
+    <a class="btn btn-outline-secondary" href="{% url 'admin_portal:reward_report' %}?ym={{ selected_ym }}">← レポート一覧へ戻る</a>
+  </div>
+</form>
+
+<p><strong>講師:</strong> {{ teacher_name }}（ID: {{ teacher_id }}）</p>
+<p>集計期間: <strong>{{ start_date }} 〜 {{ end_date }}</strong></p>
+
+{% if rows %}
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-sm table-hover mb-0">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>時間</th>
+          <th>生徒</th>
+          <th>科目</th>
+          <th>請求（1コマ）</th>
+          <th>報酬（1コマ）</th>
+          <th style="width:120px">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.date }}</td>
+          <td>{{ r.start }} 〜 {{ r.end }}</td>
+          <td>{{ r.student }}</td>
+          <td>{{ r.subject }}</td>
+          <td>{{ r.billing }}</td>
+          <td>{{ r.reward }}</td>
+          <td><a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:edit_schedule' r.schedule_id %}">授業編集</a></td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <th colspan="5" class="text-end">合計</th>
+          <th>{{ total_reward }}</th>
+          <th><!-- 空 --></th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<p class="text-muted">対象データがありません。</p>
+{% endif %}
+
+{% endblock %}
+

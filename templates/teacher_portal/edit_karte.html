@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}カルテ編集{% endblock %}
+
+{% block content %}
+<h1>カルテ編集</h1>
+
+<p class="text-muted">
+  授業日: {{ schedule.class_date }} / 生徒: {{ schedule.student.name }} / 科目: {{ schedule.subject }}
+</p>
+
+<form method="post">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      {% for e in form.non_field_errors %}{{ e }}<br>{% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="mb-3">
+    {{ form.tardy.label_tag }} {{ form.tardy }}
+  </div>
+  <div class="mb-3">
+    {{ form.evaluation.label_tag }} {{ form.evaluation }}
+  </div>
+  <div class="mb-3">
+    {{ form.material.label_tag }} {{ form.material }}
+    <a class="btn btn-sm btn-outline-primary ms-2" href="{% url 'teacher_portal:teacher_material_create' %}?next={{ request.get_full_path|urlencode }}">教材を追加</a>
+  </div>
+  <div class="mb-3">
+    {{ form.material_pages.label_tag }} {{ form.material_pages }}
+  </div>
+  <div class="mb-3">
+    {{ form.karte_summary.label_tag }} {{ form.karte_summary }}
+  </div>
+  <div class="mb-3">
+    {{ form.karte_detail.label_tag }} {{ form.karte_detail }}
+  </div>
+  <div class="mb-3">
+    {{ form.goal.label_tag }} {{ form.goal }}
+  </div>
+
+  <button class="btn btn-secondary" type="submit" name="save_draft">下書き保存</button>
+  <button class="btn btn-primary"   type="submit" name="submit">提出</button>
+  <a class="btn btn-outline-danger" href="{% url 'teacher_portal:karte_pdf' schedule.id %}">PDFダウンロード</a>
+  <a class="btn btn-link" href="{% url 'teacher_portal:schedule_board' %}">担当授業一覧へ戻る</a>
+</form>
+{% endblock %}

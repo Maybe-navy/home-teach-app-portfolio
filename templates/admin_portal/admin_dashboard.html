@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}管理ダッシュボード{% endblock %}
+{% block content %}
+
+<h1 class="h4 mb-3">管理ダッシュボード</h1>
+<p class="text-muted mb-4">ここからユーザー・授業・報酬・科目/教材などの管理が可能です。</p>
+
+<div class="row g-3">
+
+  <!-- 登録/新規作成 -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">登録 / 新規作成</h2>
+        <div class="d-grid gap-2">
+          <a class="btn btn-primary" href="{% url 'admin_portal:teacher_register' %}">講師情報登録</a>
+          <a class="btn btn-primary" href="{% url 'admin_portal:student_register' %}">生徒情報登録</a>
+          <a class="btn btn-primary" href="{% url 'admin_portal:schedule_create' %}">授業情報登録</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 授業管理 -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">授業管理</h2>
+        <div class="d-grid gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:schedule_board' %}">授業管理ボード</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 名簿 / 割当 -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">名簿 / 割当</h2>
+        <div class="d-grid gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:teacher_list' %}">講師一覧</a>
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:student_list' %}">生徒一覧</a>
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:assignment_list' %}">担当講師割当</a>
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:assignment_bulk' %}">CSV一括割当</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 科目 / 教材 -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">科目 / 教材</h2>
+        <div class="d-grid gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'personal_info:subject_list' %}">科目一覧</a>
+          <a class="btn btn-outline-secondary" href="{% url 'personal_info:material_list' %}">教材一覧</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 報酬 -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">報酬</h2>
+        <div class="d-grid gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:reward_report' %}">報酬レポート</a>
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:reward_settings_top' %}">報酬設定</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- アカウント / ロック -->
+  <div class="col-lg-6">
+      <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">アカウント / ロック</h2>
+        <div class="d-grid gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:account_status_list' %}">アカウントロック一覧</a>
+          <a class="btn btn-outline-secondary" href="{% url 'admin_portal:access_logs' %}">アクセスログ</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+

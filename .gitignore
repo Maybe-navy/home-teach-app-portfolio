@@ -1,0 +1,59 @@
+# Python / Django artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pot
+*.mo
+*.log
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+.python-version
+.tool-versions
+
+# Coverage / lint caches
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment & secrets
+.env
+.env.*
+*.env
+*.local
+*.secret
+
+# Uploaded/generated media
+media/
+staticfiles/
+
+# Virtualenvs & packaging
+venv/
+.venv/
+ENV/
+env/
+pip-log.txt
+build/
+dist/
+*.egg-info/
+
+# Editor & workspace files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# OS-specific clutter
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.bak
+*.swp

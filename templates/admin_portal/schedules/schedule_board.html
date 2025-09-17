@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}担当授業（未実施 / 保留 / 実施済）{% endblock %}
+{% block content %}
+<h1 class="h5 mb-3">担当授業</h1>
+
+<form class="row g-2 mb-3">
+  <div class="col-auto"><input class="form-control" name="q" value="{{ q }}" placeholder="生徒/科目で検索"></div>
+  <div class="col-auto"><button class="btn btn-outline-secondary">絞り込み</button></div>
+</form>
+
+<div class="mb-4">
+  <h2 class="h6">未実施</h2>
+  <table class="table table-sm table-hover align-middle">
+    <thead><tr><th>日付</th><th>時間</th><th>生徒</th><th>科目</th><th>講師</th><th>操作</th></tr></thead>
+    <tbody>
+      {% for s in p2 %}
+      <tr>
+        <td>{{ s.class_date|date:"Y-m-d" }}</td>
+        <td>{{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}</td>
+        <td>{{ s.student.name }}</td>
+        <td>{% if s.subject %}{{ s.subject.name }}{% else %}-{% endif %}</td>
+        <td>{% if s.teacher %}{{ s.teacher.name }}{% else %}-{% endif %}</td>
+        <td class="text-nowrap">
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:edit_schedule' s.id %}">編集</a>
+          {% if s.karte %}
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_portal:karte_pdf_admin' s.id %}">カルテPDF</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:karte_view_admin' s.id %}">カルテ閲覧</a>
+          {% endif %}
+          <a class="btn btn-sm btn-danger" href="{% url 'admin_portal:delete_schedule' s.id %}">削除</a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="text-muted">該当なし</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% include "partials/pager.html" with page=p2 param="p2" %}
+</div>
+
+<div class="mb-4">
+  <h2 class="h6">保留（時間未決定など）</h2>
+  <table class="table table-sm table-hover align-middle">
+    <thead><tr><th>生徒</th><th>科目</th><th>日付</th><th>時間</th><th>講師</th><th>操作</th></tr></thead>
+    <tbody>
+      {% for s in p1 %}
+      <tr>
+        <td>{{ s.student.name }}</td>
+        <td>{% if s.subject %}{{ s.subject.name }}{% else %}-{% endif %}</td>
+        <td>{% if s.class_date %}{{ s.class_date|date:"Y-m-d" }}{% else %}<span class="text-muted">未決定</span>{% endif %}</td>
+        <td>
+          {% if s.start_time and s.end_time %}
+            {{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}
+          {% else %}<span class="text-muted">未決定</span>{% endif %}
+        </td>
+        <td>{% if s.teacher %}{{ s.teacher.name }}{% else %}-{% endif %}</td>
+        <td class="text-nowrap">
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:edit_schedule' s.id %}">編集</a>
+          {% if s.karte %}
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_portal:karte_pdf_admin' s.id %}">カルテPDF</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:karte_view_admin' s.id %}">カルテ閲覧</a>
+          {% endif %}
+          <a class="btn btn-sm btn-danger" href="{% url 'admin_portal:delete_schedule' s.id %}">削除</a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="text-muted">該当なし</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% include "partials/pager.html" with page=p1 param="p1" %}
+</div>
+
+<div class="mb-4">
+  <h2 class="h6">実施済</h2>
+  <table class="table table-sm table-hover align-middle">
+    <thead><tr><th>日付</th><th>時間</th><th>生徒</th><th>科目</th><th>講師</th><th>操作</th></tr></thead>
+    <tbody>
+      {% for s in p3 %}
+      <tr>
+        <td>{{ s.class_date|date:"Y-m-d" }}</td>
+        <td>{{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}</td>
+        <td>{{ s.student.name }}</td>
+        <td>{% if s.subject %}{{ s.subject.name }}{% else %}-{% endif %}</td>
+        <td>{% if s.teacher %}{{ s.teacher.name }}{% else %}-{% endif %}</td>
+        <td class="text-nowrap">
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:edit_schedule' s.id %}">編集</a>
+          {% if s.karte and s.karte.is_confirmed %}
+            <a class="btn btn-sm btn-warning" href="{% url 'admin_portal:karte_reopen' s.karte.id %}">確定解除</a>
+          {% endif %}
+          {% if s.karte %}
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_portal:karte_pdf_admin' s.id %}">カルテPDF</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:karte_view_admin' s.id %}">カルテ閲覧</a>
+          {% endif %}
+          <a class="btn btn-sm btn-danger" href="{% url 'admin_portal:delete_schedule' s.id %}">削除</a>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="6" class="text-muted">該当なし</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  {% include "partials/pager.html" with page=p3 param="p3" %}
+</div>
+
+<a class="btn btn-link px-0" href="{% url 'admin_portal:admin_dashboard' %}">← 管理メニューに戻る</a>
+{% endblock %}

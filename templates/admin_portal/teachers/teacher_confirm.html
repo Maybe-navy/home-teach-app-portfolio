@@ -1,0 +1,42 @@
+<!-- templates/admin_portal/teachers/teacher_confirm.html -->
+
+<!DOCTYPE html>
+<html>
+    <body>
+        <head>
+            <meta charset="UTF-8">
+            <title>講師アカウント登録完了</title>
+        </head>
+        <h1>講師アカウント登録が完了しました。</h1>
+
+        <h2>ログイン情報</h2>
+        <p><strong>ユーザーID:</strong>{{ user.username }}</p>
+        <p><strong>パスワード:</strong>{{ password }}</p>
+
+        <h2>講師情報</h2>
+        <ul>
+            <li><strong>講師氏名:</strong>{{ teacher.name }}</li>
+            <li><strong>性別:</strong>{{ teacher.get_gender_display }}</li>
+            <li><strong>年齢:</strong>{{ teacher.age }}</li>
+            <li><strong>住所:</strong>{{ teacher.address }}</li>
+            <li><strong>電話番号:</strong>{{ teacher.phone }}</li>
+            <li><strong>メール:</strong>{{ teacher.email }}</li>
+            <li><strong>大学名:</strong>{{ teacher.school }}</li>
+            <li><strong>学年:</strong>{{ teacher.get_grade_display }}</li>
+            <li><strong>指導可能科目:</strong>
+                {% if teacher.subjects.all %}
+                    <ul>
+                    {% for subject in teacher.subjects.all %}
+                        <li>{{ subject.name }}</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    未設定
+                {% endif %}
+            </li>
+        </ul>
+
+        <a href="{% url 'admin_portal:admin_dashboard' %}">管理者ページに戻る</a>
+    </body>
+</html>
+

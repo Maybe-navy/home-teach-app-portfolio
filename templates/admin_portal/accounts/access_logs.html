@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}アクセスログ{% endblock %}
+{% block content %}
+<h1 class="h5 mb-3">アクセスログ</h1>
+<form class="row g-2 mb-3">
+  <div class="col-auto"><input class="form-control" name="q" value="{{ q }}" placeholder="パスに含む文字"></div>
+  <div class="col-auto">
+    <select name="role" class="form-select">
+      <option value="">全ロール</option>
+      <option value="admin" {% if role == 'admin' %}selected{% endif %}>admin</option>
+      <option value="teacher" {% if role == 'teacher' %}selected{% endif %}>teacher</option>
+      <option value="student" {% if role == 'student' %}selected{% endif %}>student</option>
+    </select>
+  </div>
+  <div class="col-auto"><button class="btn btn-outline-secondary">絞り込み</button></div>
+</form>
+<table class="table table-sm table-hover">
+  <thead><tr><th>日時</th><th>ユーザー</th><th>ロール</th><th>メソッド</th><th>ステータス</th><th>パス</th><th>IP</th></tr></thead>
+  <tbody>
+  {% for r in page %}
+    <tr>
+      <td>{{ r.at|date:"Y-m-d H:i:s" }}</td>
+      <td>{% if r.user %}{{ r.user.username }}{% else %}-{% endif %}</td>
+      <td>{{ r.role }}</td>
+      <td>{{ r.method }}</td>
+      <td>{{ r.status }}</td>
+      <td class="text-break">{{ r.path }}</td>
+      <td>{{ r.ip }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" class="text-muted">ログなし</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% include "partials/pager.html" with page=page param="p" %}
+{% endblock %}
+

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}授業情報登録{% endblock %}
+{% block content %}
+
+<h1 class="h5 mb-3">授業情報登録</h1>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" class="vstack gap-3">
+      {% csrf_token %}
+      {% include "_form_errors.html" %}
+      {{ form.as_p }}
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit">保存</button>
+        <a class="btn btn-outline-secondary" href="{% url 'admin_portal:schedule_board' %}">キャンセル</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+

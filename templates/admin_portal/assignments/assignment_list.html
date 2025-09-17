@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}担当講師割当一覧{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h1 class="h4 mb-3">担当講師割当 <span class="badge bg-secondary">{{ total }}</span></h1>
+    <form method="get" class="row g-2 mb-3">
+      <div class="col-auto">
+        <select name="teacher" class="form-select">
+          <option value="">講師(すべて)</option>
+          {% for t in teachers %}
+            <option value="{{ t.id }}" {% if teacher_id|stringformat:'s' == t.id|stringformat:'s' %}selected{% endif %}>{{ t.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="student" class="form-select">
+          <option value="">生徒(すべて)</option>
+          {% for s in students %}
+            <option value="{{ s.id }}" {% if student_id|stringformat:'s' == s.id|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <input type="text" name="q" class="form-control" value="{{ q }}" placeholder="講師/生徒で検索">
+      </div>
+      <div class="col-auto d-flex gap-2">
+        <button class="btn btn-outline-secondary" type="submit">絞り込み</button>
+        {% if teacher_id or student_id or q %}
+          <a class="btn btn-link" href="?">リセット</a>
+        {% endif %}
+      </div>
+      <div class="col-auto ms-auto d-flex gap-2">
+        <a class="btn btn-primary" href="{% url 'admin_portal:assignment_create' %}">新規割当</a>
+        <a class="btn btn-outline-secondary" href="{% url 'admin_portal:assignment_bulk' %}">CSV一括割当</a>
+      </div>
+    </form>
+
+    {% if page_obj.object_list %}
+    <table class="table table-hover table-sm align-middle">
+      <thead class="table-light">
+        <tr><th>講師</th><th>生徒</th><th>担当科目</th><th class="d-print-none"></th></tr>
+      </thead>
+      <tbody>
+      {% for a in page_obj.object_list %}
+        <tr>
+          <td>{{ a.teacher.name }}</td>
+          <td>{{ a.student.name }}</td>
+          <td>
+            {% for s in a.subjects.all %}
+              <span class="badge bg-secondary">{{ s.name }}</span>
+            {% empty %}
+              <span class="text-muted">未設定</span>
+            {% endfor %}
+          </td>
+          <td class="d-print-none text-nowrap">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:assignment_subjects_edit' a.id %}">科目編集</a>
+            <a class="btn btn-sm btn-danger" href="{% url 'admin_portal:assignment_delete' a.id %}">削除</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    {% if paginator.num_pages > 1 %}
+      <nav class="d-print-none">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1&{{ request.GET.urlencode|cut:'page=' }}">«</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|cut:'page=' }}">前</a></li>
+          {% endif %}
+          <li class="page-item disabled"><a class="page-link">{{ page_obj.number }} / {{ paginator.num_pages }}</a></li>
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|cut:'page=' }}">次</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ paginator.num_pages }}&{{ request.GET.urlencode|cut:'page=' }}">»</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+    {% else %}
+      <div class="alert alert-warning">割当はまだありません。</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

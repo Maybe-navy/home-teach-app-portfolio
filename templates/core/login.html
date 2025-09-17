@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}ログイン{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card"><div class="card-body">
+      <h1 class="h5 mb-3">ログイン</h1>
+      <form method="post" novalidate>{% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label">ユーザー名</label>
+          {{ form.username }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">パスワード</label>
+          {{ form.password }}
+        </div>
+        <button class="btn btn-primary w-100">ログイン</button>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
+

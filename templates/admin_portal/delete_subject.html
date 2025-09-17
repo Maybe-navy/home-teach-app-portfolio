@@ -1,0 +1,23 @@
+<!-- templates/admin_portal/delete_subject.html -->
+ <!DOCTYPE html>
+ <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>科目情報削除</title>
+    </head>
+    <body>
+        <h2>科目の削除確認</h2>
+        <p>本当に以下の科目名の情報を削除しますか？</p>
+
+        <ul>
+            <li><strong>科目名:</strong>{{ subject.name }}</li>
+        </ul>
+
+        <form method="POST">
+            {% csrf_token %}
+            {% include "_form_errors.html" %}
+            <button type="submit">削除する</button>
+            <a href="{% url 'personal_info:subject_list' %}">キャンセル</a>"
+        </form>
+    </body>
+ </html>

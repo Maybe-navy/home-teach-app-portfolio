@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}カルテ閲覧{% endblock %}
+{% block content %}
+<h1 class="h5 mb-3">カルテ閲覧</h1>
+
+<div class="card mb-3"><div class="card-body">
+  <dl class="row mb-0">
+    <dt class="col-sm-3">授業日</dt><dd class="col-sm-9">{{ karte.class_date|default:schedule.class_date }}</dd>
+    <dt class="col-sm-3">講師</dt><dd class="col-sm-9">{{ schedule.teacher.name }}</dd>
+    <dt class="col-sm-3">生徒</dt><dd class="col-sm-9">{{ schedule.student.name }}</dd>
+    <dt class="col-sm-3">科目</dt><dd class="col-sm-9">{{ schedule.subject|default:"-" }}</dd>
+    <dt class="col-sm-3">遅刻の有無</dt><dd class="col-sm-9">{% if karte.tardy %}あり{% else %}なし{% endif %}</dd>
+    <dt class="col-sm-3">評価</dt><dd class="col-sm-9">{{ karte.get_evaluation_display|default:"-" }}</dd>
+    <dt class="col-sm-3">使用教材</dt><dd class="col-sm-9">{{ karte.material.title|default:"-" }}</dd>
+    <dt class="col-sm-3">ページ</dt><dd class="col-sm-9">{{ karte.material_pages|default:"-" }}</dd>
+    <dt class="col-sm-3">目標</dt><dd class="col-sm-9">{{ karte.goal|default:"-" }}</dd>
+  </dl>
+</div></div>
+
+<div class="mb-3">
+  <h6>授業概要</h6>
+  <div class="border rounded p-2 bg-light">{{ karte.karte_summary|default:"-" }}</div>
+</div>
+
+<div class="mb-4">
+  <h6>授業詳細</h6>
+  <div class="border rounded p-2 bg-light">{{ karte.karte_detail|default:"-" }}</div>
+</div>
+
+<div class="d-flex gap-2">
+  <a class="btn btn-outline-primary" href="{% url 'teacher_portal:karte_pdf' schedule.id %}">PDFダウンロード</a>
+  <a class="btn btn-link" href="{% url 'teacher_portal:schedule_board' %}">担当授業一覧へ戻る</a>
+  </div>
+{% endblock %}
+

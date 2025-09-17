@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}報酬・請求レポート{% endblock %}
+
+{% block content %}
+<h1 class="mb-3">報酬・請求レポート</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-auto">
+    <label class="form-label mb-0">集計月</label>
+    <input type="month" name="ym" value="{{ ym }}" class="form-control form-control-sm" />
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary btn-sm" type="submit">移動</button>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'admin_portal:reward_report' %}">今月</a>
+  </div>
+  <div class="col-auto">
+    <a class="btn btn-sm btn-outline-dark" href="{% url 'admin_portal:reward_report' %}?ym={{ prev_ym }}">← 前月</a>
+    <a class="btn btn-sm btn-outline-dark" href="{% url 'admin_portal:reward_report' %}?ym={{ next_ym }}">翌月 →</a>
+  </div>
+  <div class="col-auto">
+    <a class="btn btn-sm btn-outline-primary" href="?ym={{ ym }}&export=csv">CSV出力</a>
+  </div>
+  <div class="col-auto d-print-none">
+    <button type="button" class="btn btn-sm btn-outline-success" onclick="window.print()">印刷（PDF）</button>
+  </div>
+  <div class="col-auto">
+  <a class="btn btn-sm btn-outline-danger" href="{% url 'admin_portal:reward_report_pdf' %}?ym={{ ym }}">PDFダウンロード</a>
+  </div>
+</form>
+
+<p class="text-muted">対象期間: {{ start_date }} 〜 {{ end_date }}</p>
+
+<h3 class="mt-4">講師別（報酬）</h3>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>講師</th>
+      <th class="text-end">コマ数</th>
+      <th class="text-end">合計報酬(円)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in teacher_rows %}
+      <tr>
+        <td>{{ r.teacher.name }}</td>
+        <td class="text-end">{{ r.classes|default_if_none:0 }}</td>
+        <td class="text-end">{{ r.total_reward|default_if_none:0 }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3" class="text-center text-muted">講師が登録されていません。</td></tr>
+    {% endfor %}
+  </tbody>
+  </table>
+
+<h3 class="mt-4">生徒別（請求）</h3>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>生徒</th>
+      <th class="text-end">コマ数</th>
+      <th class="text-end">合計請求(円)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in student_rows %}
+      <tr>
+        <td>{{ r.student.name }}</td>
+        <td class="text-end">{{ r.classes|default_if_none:0 }}</td>
+        <td class="text-end">{{ r.total_fee|default_if_none:0 }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3" class="text-center text-muted">生徒が登録されていません。</td></tr>
+    {% endfor %}
+  </tbody>
+  </table>
+
+<a class="btn btn-link" href="{% url 'admin_portal:admin_dashboard' %}">← 管理者トップに戻る</a>
+{% endblock %}
+

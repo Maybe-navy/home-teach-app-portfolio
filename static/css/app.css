@@ -1,0 +1,16 @@
+/* 軽い上書きのみ（Bootstrapを壊さない範囲） */
+body { background: #0b1220; color: #e5e7eb; }
+.navbar { border-bottom: 1px solid rgba(255,255,255,.08); }
+.card { background: #111827; border-color: rgba(255,255,255,.08); }
+.table thead th { color:#9ca3af; }
+a, .btn-link { color: #60a5fa; }
+.btn-primary { background: linear-gradient(90deg, #3b82f6, #60a5fa); border: none; }
+.btn-outline-secondary { border-color: rgba(255,255,255,.15); color: #e5e7eb; }
+.alert-warning { color:#8a6d3b; background:#fff3cd; border-color:#ffe69c; }
+.footer { color:#9ca3af; font-size:12px; margin:24px 0; text-align:center; }
+.table-sticky thead th { position: sticky; top: 0; z-index: 2; background: #1f2937; }
+@media print {
+  .navbar, .btn, .pagination, .d-print-none { display: none !important; }
+  table { page-break-inside: auto; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+}

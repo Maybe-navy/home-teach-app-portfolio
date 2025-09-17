@@ -1,0 +1,20 @@
+<!-- templates/admin_portal/edit_subject.html -->
+ <!DOCTYPE html>
+ <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>科目編集</title>
+    </head>
+    <body>
+        <h1>科目の編集</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            {% include "_form_errors.html" %}
+            {{ form.as_p }}
+            <button type="submit">更新</button>
+        </form>
+
+        <p><a href="{% url 'personal_info:subject_list' %}">← 科目一覧に戻る</a></p>
+    </body>
+ </html>

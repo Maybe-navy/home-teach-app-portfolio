@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}CSV一括割当{% endblock %}
+{% block content %}
+<div class="card"><div class="card-body">
+  <h1 class="h4 mb-3">CSV一括割当</h1>
+  <p class="text-muted small">teacher_id,student_id または teacher_username,student_username</p>
+  {% if preview %}
+    <form method="post">{% csrf_token %}
+      <input type="hidden" name="csvdata" value="{{ csvdata|escape }}">
+      <table class="table table-hover table-sm align-middle table-sticky">
+        <thead><tr><th>教師</th><th>生徒</th><th>結果</th><th>エラー</th></tr></thead>
+        <tbody>
+        {% for r in rows %}
+          <tr class="{% if r.status == 'ERROR' %}table-danger{% elif r.status == 'SKIP' %}table-warning{% endif %}">
+            <td>{{ r.row.teacher_username|default:r.row.teacher_id }}</td>
+            <td>{{ r.row.student_username|default:r.row.student_id }}</td>
+            <td>{{ r.status }}</td><td>{{ r.error }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% if not has_error %}
+        <button class="btn btn-primary" name="confirm" value="1">Confirm</button>
+      {% else %}
+        <div class="alert alert-danger">エラー行があるため確定できません。</div>
+      {% endif %}
+      <a class="btn btn-outline-secondary" href="{% url 'admin_portal:assignment_bulk' %}">戻る</a>
+    </form>
+  {% else %}
+    <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap gap-2">{% csrf_token %}
+      <input type="file" name="file" class="form-control" accept=".csv" required>
+      <button class="btn btn-primary" name="preview" value="1">アップロード</button>
+      <a class="btn btn-outline-secondary" href="{% url 'admin_portal:assignment_list' %}">戻る</a>
+    </form>
+  {% endif %}
+</div></div>
+{% endblock %}
+

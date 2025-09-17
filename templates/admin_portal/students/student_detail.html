@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}生徒詳細{% endblock %}
+{% block content %}
+<h1 class="mb-3">生徒詳細</h1>
+
+<div class="mb-3">
+  <a href="{% url 'admin_portal:student_list' %}" class="btn btn-outline-secondary btn-sm">一覧へ戻る</a>
+  <a href="{% url 'admin_portal:student_edit' student.pk %}" class="btn btn-primary btn-sm">編集</a>
+</div>
+
+<table class="table">
+  <tr><th style="width:180px">氏名</th><td>{{ student.name }}</td></tr>
+  <tr><th>ユーザーID</th><td>{{ student.user.username }}</td></tr>
+  <tr><th>ID</th><td>{{ student.id }}</td></tr>
+  <tr><th>性別</th><td>{{ student.get_gender_display }}</td></tr>
+  <tr><th>学年</th><td>{{ student.get_grade_display }}</td></tr>
+  <tr><th>住所</th><td>{{ student.address }}</td></tr>
+  <tr><th>電話</th><td>{{ student.phone }}</td></tr>
+  <tr><th>メール</th><td>{{ student.email }}</td></tr>
+  <tr><th>科目</th>
+      <td>
+        {% for s in student.subjects.all %}{% if not forloop.first %}, {% endif %}{{ s.name }}{% empty %}<span class="text-muted">未設定</span>{% endfor %}
+      </td>
+  </tr>
+  <tr><th>報酬区分</th><td>{% if student.reward_category %}{{ student.reward_category.get_category_display }}{% else %}<span class="text-muted">未設定</span>{% endif %}</td></tr>
+  <tr><th>自由報酬額</th><td>{% if student.custom_reward_per_class %}￥{{ student.custom_reward_per_class|floatformat:0 }}{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
+  <tr><th>請求額（1コマ）</th><td>{% if student.billing_per_class %}￥{{ student.billing_per_class|floatformat:0 }}{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
+  </table>
+
+<h5 class="mt-4">授業予定（直近10件）</h5>
+<table class="table table-sm">
+  <thead><tr><th>日付</th><th>時間</th><th>講師</th><th>科目</th><th>状態</th></tr></thead>
+  <tbody>
+  {% for s in schedules %}
+    <tr>
+      <td>{{ s.class_date }}</td>
+      <td>{{ s.start_time }} - {{ s.end_time }}</td>
+      <td>{{ s.teacher.name }}</td>
+      <td>{{ s.subject }}</td>
+      <td>{{ s.get_status_display }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5" class="text-muted">授業はありません。</td></tr>
+  {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+

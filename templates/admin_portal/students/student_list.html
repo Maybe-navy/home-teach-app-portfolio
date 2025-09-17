@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}生徒一覧{% endblock %}
+{% block content %}
+<h1 class="mb-3">生徒一覧</h1>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-auto">
+    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="氏名/電話/メールで検索">
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary" type="submit">検索</button>
+  </div>
+  <div class="col-auto">
+    <a href="{% url 'admin_portal:admin_dashboard' %}" class="btn btn-outline-secondary">管理者トップ</a>
+  </div>
+</form>
+
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>氏名</th><th>ユーザーID</th><th>ID</th><th>性別</th><th>学年</th><th>メール</th><th>報酬区分</th><th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for s in students %}
+    <tr>
+      <td>{{ s.name }}</td>
+      <td>{{ s.user.username }}</td>
+      <td>{{ s.id }}</td>
+      <td>{{ s.get_gender_display }}</td>
+      <td>{{ s.get_grade_display }}</td>
+      <td>{{ s.email }}</td>
+      <td>{% if s.reward_category %}{{ s.reward_category.get_category_display }}{% else %}<span class="text-muted">未設定</span>{% endif %}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_portal:student_detail' s.pk %}">詳細</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:student_edit' s.pk %}">編集</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6" class="text-muted">生徒が登録されていません。</td></tr>
+  {% endfor %}
+  </tbody>
+  </table>
+
+<nav>
+  <ul class="pagination">
+    {% if students.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ students.previous_page_number }}&q={{ q }}">前へ</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">{{ students.number }} / {{ students.paginator.num_pages }}</span></li>
+    {% if students.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ students.next_page_number }}&q={{ q }}">次へ</a></li>
+    {% endif %}
+  </ul>
+  </nav>
+{% endblock %}
+

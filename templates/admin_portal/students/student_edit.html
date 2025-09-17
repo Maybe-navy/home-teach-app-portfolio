@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}生徒編集{% endblock %}
+{% block content %}
+<h1 class="mb-3">生徒編集</h1>
+
+<div class="mb-3">
+  <a href="{% url 'admin_portal:student_detail' student.pk %}" class="btn btn-outline-secondary btn-sm">詳細に戻る</a>
+  </div>
+
+<form method="post" class="mb-5">
+  {% csrf_token %}
+  {% include "_form_errors.html" %}
+  {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+      {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+    </div>
+  {% endfor %}
+  <button class="btn btn-primary" type="submit">保存</button>
+  </form>
+{% endblock %}
+

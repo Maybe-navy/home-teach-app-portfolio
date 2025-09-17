@@ -1,0 +1,41 @@
+<!-- templates/admin_portal/students/student_confirm.html -->
+ <!DOCTYPE html>
+ <html>
+    <body>
+        <head>
+            <meta charset="UTF-8">
+            <title>生徒アカウント登録完了</title>
+        </head>
+        <h1>生徒アカウント登録が完了しました。</h1>
+
+        <h2>ログイン情報</h2>
+        <p><strong>ユーザーID:</strong>{{ user.username }}</p>
+        <p><strong>仮パスワード:</strong>{{ password }}</p>
+
+        <h2>生徒情報の登録</h2>
+        <ul>
+            <li><strong>生徒氏名:</strong>{{ student.name }}</li>
+            <li><strong>性別:</strong>{{ student.get_gender_display }}</li>
+            <li><strong>年齢:</strong>{{ student.age }}</li>
+            <li><strong>住所:</strong>{{ student.address }}</li>
+            <li><strong>電話番号:</strong>{{ student.phone }}</li>
+            <li><strong>メール:</strong>{{ student.email }}</li>
+            <li><strong>所属校:</strong>{{ student.school }}</li>
+            <li><strong>学年:</strong>{{ student.get_grade_display }}</li>
+            <li><strong>希望科目:</strong>
+                {% if student.subjects.all %}
+                    <ul>
+                    {% for subject in student.subjects.all %}
+                        <li>{{ subject.name }}</li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    未設定
+                {% endif %}
+            </li>
+        </ul>
+
+        <a href="{% url 'admin_portal:admin_dashboard' %}">管理者ページに戻る</a>
+    </body>
+ </html>
+

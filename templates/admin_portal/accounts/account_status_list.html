@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}アカウント状態{% endblock %}
+{% block content %}
+<h1 class="h5 mb-3">アカウント状態</h1>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-auto">{{ form.q }}</div>
+  <div class="col-auto">{{ form.user_type }}</div>
+  <div class="col-auto form-check pt-2">{{ form.only_locked }} <label class="form-check-label">ロック中のみ</label></div>
+  <div class="col-auto"><button class="btn btn-outline-secondary">検索</button></div>
+  <div class="col-auto"><a class="btn btn-link" href="{% url 'admin_portal:account_status_list' %}">クリア</a></div>
+  <div class="col-auto ms-auto"><a class="btn btn-outline-secondary" href="{% url 'admin_portal:admin_dashboard' %}">管理者ダッシュボード</a></div>
+</form>
+
+<div class="card"><div class="card-body p-0">
+  <table class="table table-sm table-hover mb-0">
+    <thead>
+      <tr>
+        <th>ユーザーID</th>
+        <th>氏名</th>
+        <th>種別</th>
+        <th>失敗回数</th>
+        <th>ロック状態</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in page_obj.object_list %}
+        {% with up=u.userprofile %}
+        <tr>
+          <td>{{ u.username }}</td>
+          <td>
+            {{ u.teacherprofile.name|default:u.adminprofile.name|default:"-" }}
+          </td>
+          <td>{{ up.get_user_type_display }}</td>
+          <td>{{ up.failed_login_attempts|default:0 }}</td>
+          <td>
+            {% if up.is_locked %}
+              <span class="badge text-bg-danger">LOCKED</span>
+            {% else %}
+              <span class="badge text-bg-success">OK</span>
+            {% endif %}
+          </td>
+          <td class="actions">
+            <form method="post" action="{% url 'admin_portal:unlock_user' u.id %}" class="d-inline">{% csrf_token %}
+              <button class="btn btn-sm btn-outline-secondary" type="submit" {% if not up.is_locked %}disabled{% endif %}>ロック解除</button>
+            </form>
+            <form method="post" action="{% url 'admin_portal:reset_fail_count' u.id %}" class="d-inline">{% csrf_token %}
+              <button class="btn btn-sm btn-outline-secondary" type="submit" {% if up.failed_login_attempts|default:0 == 0 %}disabled{% endif %}>失敗回数リセット</button>
+            </form>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:reset_locked_account' u.id %}">パスワードリセット</a>
+          </td>
+        </tr>
+        {% endwith %}
+      {% empty %}
+        <tr><td colspan="6" class="text-muted">該当ユーザーがいません。</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% include "partials/pager.html" with page=page_obj param="page" %}
+{% endblock %}
+
