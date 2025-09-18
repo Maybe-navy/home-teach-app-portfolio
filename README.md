@@ -63,6 +63,8 @@ python manage.py runserver 127.0.0.1:8000
 | `A_demo / Demo!Pass1` | Staff (non-superuser) | 書き込みが可能な仮管理者 |
 | `T_demo / Demo!Pass1` | Teacher | 読み取り専用が基本 |
 
+- ホスト名は `DEMO_HOSTS` (複数可) または `DEMO_HOST` で指定できます。未設定時でも `localhost` / `127.0.0.1` からアクセスできます。
+- HTTPS を強制できないローカル検証では `DEMO_FORCE_HTTPS=false` を指定してください。
 - デモ用管理サイトは `ADMIN_URL` 環境変数で指定したパスにマウントされます（例: `admin-8c1b3f1c/`）。公開資料に直接記載しないでください。
 - `python manage.py reset_demo` で DB の初期化とデモデータの再投入が実行されます。cron を利用して定期実行することで閲覧用データをクリーンに保てます。
 
