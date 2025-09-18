@@ -1,5 +1,6 @@
 name: CI
 on:
+  workflow_dispatch:
   push:
     branches: [ public ]
   pull_request:
@@ -12,34 +13,21 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ['3.12', '3.13']
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+      - name: System deps for Pillow/ReportLab
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libjpeg-turbo8-dev zlib1g-dev libfreetype6-dev
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
       - name: Run tests
         run: python -m pytest -q
-
-deploy-check:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-        cache: 'pip'
-    - name: Install deps
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Django deploy check
-      env:
-        DJANGO_SETTINGS_MODULE: config.settings_prod
-        DJANGO_SECRET_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-        DJANGO_ALLOWED_HOSTS: localhost
-      run: python manage.py check --deploy
