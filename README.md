@@ -1,4 +1,8 @@
 ![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg?branch=public)
+
+![Release](https://img.shields.io/github/v/release/<owner>/<repo>?include_prereleases&label=release)
+
+
 # Home Teach App
 
 Home Teach App は、学習塾の運営を想定した Django 製の業務支援システムです。管理者・講師・生徒の 3 つのポータルを備え、授業スケジュール、カルテ提出、報酬計算、アカウント管理が 1 つのアプリで完結します。本リポジトリはポートフォリオ公開を想定した安全な構成とドキュメントを含みます。
