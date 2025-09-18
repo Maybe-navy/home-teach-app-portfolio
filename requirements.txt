@@ -2,4 +2,5 @@ sentry-sdk
 Django==5.2.5
 pytest
 pytest-django
+python-dateutil>=2.8.2
 
