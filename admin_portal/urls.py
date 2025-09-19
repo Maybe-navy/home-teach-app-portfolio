@@ -9,7 +9,7 @@ from .views import (
                      student_reward_list, student_reward_edit,
                      reward_category_create, account_status_list,
                      unlock_user, reset_fail_count, reset_locked_account, teacher_list_view,
-                     teacher_detail_view, teacher_edit_view,
+                     teacher_detail_view, teacher_edit_view, teacher_delete_view,
                      student_list_view, student_detail_view,
                      student_edit_view, reward_close_create_view,
                      reward_close_detail_view, reward_close_export_csv,
@@ -56,6 +56,7 @@ urlpatterns = [
     path('teachers/', teacher_list_view, name='teacher_list'),
     path('teachers/<int:pk>/', teacher_detail_view, name='teacher_detail'),
     path('teachers/<int:pk>/edit/', teacher_edit_view, name='teacher_edit'),
+    path('teachers/<int:pk>/delete/', teacher_delete_view, name='teacher_delete'),
 
     # 生徒 一覧/詳細/編集
     path('students/', student_list_view, name='student_list'),

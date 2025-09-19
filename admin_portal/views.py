@@ -826,6 +826,51 @@ def teacher_edit_view(request, pk):
         form = TeacherEditForm(instance=teacher)
     return render(request, 'admin_portal/teachers/teacher_edit.html', {'form': form, 'teacher': teacher})
 
+
+@login_required
+@user_passes_test(is_admin)
+def teacher_delete_view(request, pk):
+    teacher = get_object_or_404(TeacherProfile.objects.select_related('user'), pk=pk)
+
+    guard = globals().get("_demo_staff_sensitive_forbidden")
+    if callable(guard):
+        forbidden = guard(request)
+        if forbidden:
+            return forbidden
+
+    assignment_count = TeacherStudentAssignment.objects.filter(teacher=teacher).count()
+    schedule_count = ClassSchedule.objects.filter(teacher=teacher).count()
+    try:
+        teacher_username = teacher.user.username
+    except User.DoesNotExist:
+        teacher_username = ""
+
+    if request.method == 'POST':
+        teacher_name = teacher.name
+        try:
+            linked_user = teacher.user
+        except User.DoesNotExist:
+            linked_user = None
+        with transaction.atomic():
+            if linked_user:
+                linked_user.delete()
+            else:
+                teacher.delete()
+        messages.success(request, f'講師「{teacher_name}」を削除しました。')
+        return redirect('admin_portal:teacher_list')
+
+    return render(
+        request,
+        'admin_portal/teachers/teacher_confirm_delete.html',
+        {
+            'teacher': teacher,
+            'assignment_count': assignment_count,
+            'schedule_count': schedule_count,
+            'teacher_username': teacher_username,
+        },
+    )
+
+
 @login_required
 @user_passes_test(is_admin)
 def student_list_view(request):
