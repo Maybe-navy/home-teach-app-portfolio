@@ -5,3 +5,7 @@ pytest-django
 python-dateutil>=2.8.2
 reportlab>=3.6.13
 Pillow>=9.5.0
+gunicorn>=21.2
+whitenoise>=6.7
+dj-database-url>=2.3
+psycopg[binary]>=3.2
