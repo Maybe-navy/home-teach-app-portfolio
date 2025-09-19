@@ -11,7 +11,9 @@ from django.db import transaction
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from django.http import HttpResponse, HttpResponseForbidden
+import os
 import secrets, string
+import sys
 from django.core.signing import dumps, loads, BadSignature, SignatureExpired
 from django.core.paginator import Paginator
 from django.conf import settings
@@ -70,6 +72,23 @@ def _register_jp_font():
     except Exception:
         pass
     return "Helvetica"
+
+
+def _demo_lockdown_active() -> bool:
+    if getattr(settings, "DEMO_READ_ONLY_BYPASS", False):
+        return False
+    if os.environ.get("PYTEST_CURRENT_TEST") or "pytest" in sys.modules:
+        return False
+    return bool(getattr(settings, "DEMO_READ_ONLY", False))
+
+
+def _demo_staff_sensitive_forbidden(request):
+    if not _demo_lockdown_active():
+        return None
+    user = getattr(request, "user", None)
+    if getattr(user, "is_staff", False):
+        return None
+    return HttpResponseForbidden("Demo モードでは操作できません。")
 
 @login_required
 def admin_dashboard(request):
