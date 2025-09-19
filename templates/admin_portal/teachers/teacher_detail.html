@@ -6,6 +6,7 @@
 <div class="mb-3">
   <a href="{% url 'admin_portal:teacher_list' %}" class="btn btn-outline-secondary btn-sm">一覧へ戻る</a>
   <a href="{% url 'admin_portal:teacher_edit' teacher.pk %}" class="btn btn-primary btn-sm">編集</a>
+  <a href="{% url 'admin_portal:teacher_delete' teacher.pk %}" class="btn btn-outline-danger btn-sm">削除</a>
   </div>
 
 <table class="table">
@@ -43,4 +44,3 @@
   </tbody>
   </table>
 {% endblock %}
-

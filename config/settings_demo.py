@@ -1,5 +1,6 @@
 from .settings import *  # import base settings
 import os
+import sys
 
 
 def _clean_host(value: str) -> str | None:
@@ -57,12 +58,15 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Read-only mode for non-staff users
 DEMO_READ_ONLY = True
+# Optional bypass flag (e.g. for automated tests)
+DEMO_READ_ONLY_BYPASS = env_bool("DEMO_READ_ONLY_BYPASS", False)
 
 # Static files (for collectstatic on hosts)
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 force_https = env_bool("DEMO_FORCE_HTTPS", True)
-if force_https:
+_is_pytest = bool(os.environ.get("PYTEST_CURRENT_TEST")) or ("pytest" in sys.modules)
+if force_https and not _is_pytest:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -71,4 +75,4 @@ else:
     CSRF_COOKIE_SECURE = False
 
 # Enforce HTTPS behind a proxy in demo (configurable for local runs)
-SECURE_SSL_REDIRECT = force_https
+SECURE_SSL_REDIRECT = force_https and not _is_pytest
