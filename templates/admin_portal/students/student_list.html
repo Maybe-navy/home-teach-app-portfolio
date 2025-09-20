@@ -34,6 +34,7 @@
       <td>
         <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_portal:student_detail' s.pk %}">詳細</a>
         <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:student_edit' s.pk %}">編集</a>
+        <a class="btn btn-sm btn-outline-danger" href="{% url 'admin_portal:student_delete' s.pk %}">削除</a>
       </td>
     </tr>
   {% empty %}
