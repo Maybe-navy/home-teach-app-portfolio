@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}生徒削除{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h1 class="h4 mb-3">生徒削除の確認</h1>
+    <p>生徒 <strong>{{ student.name }}</strong>（ユーザーID: {{ student_username|default:"-" }}) を削除します。よろしいですか？</p>
+    {% if assignment_count or schedule_count %}
+    <div class="alert alert-warning" role="alert">
+      <ul class="mb-0">
+        {% if assignment_count %}<li>担当割り当て {{ assignment_count }} 件が同時に削除されます。</li>{% endif %}
+        {% if schedule_count %}<li>該当生徒に紐づく授業 {{ schedule_count }} 件が同時に削除されます。</li>{% endif %}
+      </ul>
+    </div>
+    {% endif %}
+    <form method="post" class="d-flex gap-2">{% csrf_token %}
+      <button type="submit" class="btn btn-danger">削除する</button>
+      <a href="{% url 'admin_portal:student_detail' student.pk %}" class="btn btn-outline-secondary">キャンセル</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

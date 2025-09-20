@@ -11,6 +11,7 @@ Home Teach App は、学習塾の運営を想定した Django 製の業務支援
 
 - **Multi-portal UI**: `/admin_portal`, `/teacher_portal`, `/student_portal` で役割に応じたダッシュボードを提供。
 - **Reward & schedule operations**: 授業カルテの提出状況に応じて報酬を集計し、締め処理や PDF 出力が可能。
+- **Account lifecycle management**: 管理者は講師・生徒アカウントを登録・編集・削除でき、確認画面つきで安全に運用できます。
 - **Hardening for demos**: 読み取り専用モード、強制パスワード変更、監査ログなどコンプライアンス機能を内蔵。
 - **Bilingual docs**: 英語 / 日本語でセットアップ手順を用意し、公開デモや面談時の説明に活用できます。
 
@@ -49,7 +50,7 @@ python manage.py runserver
 
 ## Demo Mode (Optional Public Sandbox)
 
-デモ公開時は環境変数 `DJANGO_SETTINGS_MODULE=config.settings_demo` を指定して起動します。読み取り専用モードや管理画面の秘匿 URL など、公開前提でのハードニングが有効化されます。
+デモ公開時は環境変数 `DJANGO_SETTINGS_MODULE=config.settings_demo` を指定して起動します。読み取り専用モードや管理画面の秘匿 URL など、公開前提でのハードニングが有効化されます（管理者ロールは必要な削除操作も継続して実行できます）。
 
 ```bash
 export DJANGO_SETTINGS_MODULE=config.settings_demo

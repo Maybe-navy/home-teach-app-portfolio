@@ -88,6 +88,10 @@ def _demo_staff_sensitive_forbidden(request):
     user = getattr(request, "user", None)
     if getattr(user, "is_staff", False):
         return None
+    if getattr(user, "is_authenticated", False):
+        profile = getattr(user, "userprofile", None)
+        if getattr(profile, "user_type", None) == "admin":
+            return None
     return HttpResponseForbidden("Demo モードでは操作できません。")
 
 @login_required
@@ -902,6 +906,50 @@ def student_list_view(request):
     page = request.GET.get('page')
     students = paginator.get_page(page)
     return render(request, 'admin_portal/students/student_list.html', {'students': students, 'q': q or ''})
+
+
+@login_required
+@user_passes_test(is_admin)
+def student_delete_view(request, pk):
+    student = get_object_or_404(StudentProfile.objects.select_related('user'), pk=pk)
+
+    guard = globals().get("_demo_staff_sensitive_forbidden")
+    if callable(guard):
+        forbidden = guard(request)
+        if forbidden:
+            return forbidden
+
+    assignment_count = TeacherStudentAssignment.objects.filter(student=student).count()
+    schedule_count = ClassSchedule.objects.filter(student=student).count()
+    try:
+        student_username = student.user.username
+    except User.DoesNotExist:
+        student_username = ""
+
+    if request.method == 'POST':
+        student_name = student.name
+        try:
+            linked_user = student.user
+        except User.DoesNotExist:
+            linked_user = None
+        with transaction.atomic():
+            if linked_user:
+                linked_user.delete()
+            else:
+                student.delete()
+        messages.success(request, f'生徒「{student_name}」を削除しました。')
+        return redirect('admin_portal:student_list')
+
+    return render(
+        request,
+        'admin_portal/students/student_confirm_delete.html',
+        {
+            'student': student,
+            'assignment_count': assignment_count,
+            'schedule_count': schedule_count,
+            'student_username': student_username,
+        },
+    )
 
 @login_required
 @user_passes_test(is_admin)
