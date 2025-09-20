@@ -36,8 +36,15 @@ class ForcePasswordChangeMiddleware(MiddlewareMixin):
         allowed_prefixes = ("/static/", "/media/", "/admin/")
 
         path = request.path or "/"
-        if current_name in allowed_names or any(path.startswith(p) for p in allowed_prefixes):
+        change_url = reverse("core:change_password")
+        login_url = reverse("core:login")
+        logout_url = reverse("logout")
+
+        if (
+            current_name in allowed_names
+            or path in {change_url, login_url, logout_url}
+            or any(path.startswith(p) for p in allowed_prefixes)
+        ):
             return
 
-        change_url = reverse("core:change_password")
         return redirect(f"{change_url}?next={path}")

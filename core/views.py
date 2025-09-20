@@ -3,8 +3,10 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse, NoReverseMatch
+from django.conf import settings
 from .forms import LoginForm, PasswordChangeForm
 from .models import UserProfile
+from personal_info.models import TeacherProfile, StudentProfile
 
 #ユーザーIDの接頭字からID種別を識別
 def get_user_type_from_username(username):
@@ -93,6 +95,8 @@ def login_view(request):
     # ログイン実行
     login(request, user)
 
+    _ensure_demo_profile(user, profile)
+
     # 一時パスワードなら変更画面へ（講師/生徒のみ強制）
     if profile.is_temporary_password and profile.user_type in ("teacher", "student"):
         return redirect('core:change_password')
@@ -103,7 +107,7 @@ def login_view(request):
     elif profile.user_type == "teacher":
         return redirect('teacher_portal:teacher_dashboard')
     elif profile.user_type == "student":
-        return redirect('student_dashboard')
+        return redirect('student_portal:my_schedule_list')
 
     messages.error(request, "ユーザー種別が無効です。")
     return redirect("core:login")
@@ -132,6 +136,10 @@ def change_password_view(request):
                 return redirect('admin_portal:admin_dashboard')
             elif user_type == 'teacher':
                 return redirect('teacher_portal:teacher_dashboard')
+            elif user_type == 'student':
+                return redirect('student_portal:my_schedule_list')
+            else:
+                return redirect('core:login')
     else:
         form = PasswordChangeForm()
     return render(request, 'core/change_password.html', {'form':form})
@@ -194,7 +202,7 @@ def home_redirect(request):
     elif role == 'teacher':
         candidates = ['teacher_portal:teacher_dashboard']
     elif role == 'student':
-        candidates = ['student_portal:student_dashboard']
+        candidates = ['student_portal:my_schedule_list']
     else:
         candidates = ['teacher_portal:teacher_dashboard', 'admin_portal:admin_dashboard']
 
@@ -218,3 +226,36 @@ def error_404(request, exception=None):
 
 def error_500(request):
     return render(request, '500.html', status=500)
+
+
+def _ensure_demo_profile(user, profile):
+    if not getattr(settings, "DEMO_READ_ONLY", False):
+        return
+    if profile.user_type == "teacher":
+        TeacherProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                "name": user.get_full_name() or user.username,
+                "gender": "man",
+                "age": 25,
+                "address": "デモ用アドレス",
+                "phone": "000-0000-0000",
+                "email": user.email or f"{user.username}@example.com",
+                "school": "デモ大学",
+                "grade": "college_1",
+            },
+        )
+    elif profile.user_type == "student":
+        StudentProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                "name": user.get_full_name() or user.username,
+                "gender": "man",
+                "age": 15,
+                "address": "デモ用アドレス",
+                "phone": "000-0000-0000",
+                "email": user.email or f"{user.username}@example.com",
+                "school": "デモ中学",
+                "grade": "junior_1",
+            },
+        )

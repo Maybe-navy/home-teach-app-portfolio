@@ -47,6 +47,7 @@ from personal_info.utils import (
 
 from core.utils import generate_compliant_password, cached_count
 from core.models import UserProfile, AccessLog
+from core.demo_signals import demo_delete_override
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -875,10 +876,11 @@ def teacher_delete_view(request, pk):
         except User.DoesNotExist:
             linked_user = None
         with transaction.atomic():
-            if linked_user:
-                linked_user.delete()
-            else:
-                teacher.delete()
+            with demo_delete_override():
+                if linked_user:
+                    linked_user.delete()
+                else:
+                    teacher.delete()
         messages.success(request, f'講師「{teacher_name}」を削除しました。')
         return redirect('admin_portal:teacher_list')
 
@@ -933,10 +935,11 @@ def student_delete_view(request, pk):
         except User.DoesNotExist:
             linked_user = None
         with transaction.atomic():
-            if linked_user:
-                linked_user.delete()
-            else:
-                student.delete()
+            with demo_delete_override():
+                if linked_user:
+                    linked_user.delete()
+                else:
+                    student.delete()
         messages.success(request, f'生徒「{student_name}」を削除しました。')
         return redirect('admin_portal:student_list')
 
