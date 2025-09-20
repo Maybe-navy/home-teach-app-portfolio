@@ -20,12 +20,21 @@ class ReadOnlyMiddleware:
                 or getattr(settings, "DEMO_READ_ONLY_BYPASS", False)
             ):
                 return self.get_response(request)
-            # Allow login/logout POSTs so users can sign in/out in demo
+            # Allow login/logout/password-change POSTs so users can sign in/out in demo
             path = (request.path or "")
-            if path.endswith("/login/") or path.endswith("/logout/"):
+            if (
+                path.endswith("/login/")
+                or path.endswith("/logout/")
+                or path.endswith("/change_password/")
+                or path.endswith("/materials/create/")
+            ):
                 return self.get_response(request)
 
             user = getattr(request, "user", None)
+            if getattr(user, "is_authenticated", False):
+                profile = getattr(user, "userprofile", None)
+                if profile and profile.user_type in {"admin", "teacher", "student"}:
+                    return self.get_response(request)
             if not (getattr(user, "is_authenticated", False) and getattr(user, "is_staff", False)):
                 return HttpResponseNotAllowed(self.SAFE)
         return self.get_response(request)
