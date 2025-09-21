@@ -17,6 +17,7 @@ from personal_info.models import (
 from personal_info.forms import MaterialList
 from .forms import ClassKarteForm, TeacherScheduleEditForm
 from datetime import date
+import logging
 from django.utils.dateparse import parse_date
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -624,6 +625,7 @@ def student_schedule_pdf_view(request, student_id: int):
         p.showPage()
         p.save()
     except Exception:
+        # 予期せぬエラー内容を監視できるようログに残し、利用者には共通メッセージを返す。
         logger = logging.getLogger(__name__)
         logger.exception(
             "PDF generation failed",

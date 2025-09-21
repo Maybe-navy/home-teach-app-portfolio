@@ -2,6 +2,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.lib.utils import simpleSplit
 
+# A4サイズとmm単位はPDF描画の座標計算で頻繁に利用するため、ここで明示的に読み込む。
+
 
 def get_font_name():
     """既存の _register_jp_font を呼び出してフォント名を取得"""
