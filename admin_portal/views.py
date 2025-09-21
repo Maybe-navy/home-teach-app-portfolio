@@ -1,4 +1,4 @@
-#管理者のみアクセスできる機能全般
+"""管理者ポータルで利用するビュー群。"""
 
 import csv, io
 from types import SimpleNamespace
@@ -141,7 +141,8 @@ def student_register(request):
         form = StudentRegistForm()
     return render(request, 'admin_portal/students/student_register.html', {'form': form})
 
-def is_admin(user): #アカウントがログインされていてかつ管理者か区別
+def is_admin(user):
+    """ログイン済みユーザーが管理者アカウントか判定する。"""
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'admin'
 
 @login_required
@@ -185,7 +186,7 @@ def reset_user_password(request, user_id):
         return forbidden
     user = get_object_or_404(User, id=user_id)
 
-    new_password = generate_compliant_password(length=12)  # ← 差し替え
+    new_password = generate_compliant_password(length=12)  # ランダムな仮パスワードを再発行
     user.set_password(new_password)
     user.save()
 

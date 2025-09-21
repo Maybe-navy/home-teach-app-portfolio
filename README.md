@@ -1,56 +1,45 @@
-![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg?branch=public)
-
-![Release](https://img.shields.io/github/v/release/<owner>/<repo>?include_prereleases&label=release)
-
-
 # Home Teach App
 
-Home Teach App は、学習塾の運営を想定した Django 製の業務支援システムです。管理者・講師・生徒の 3 つのポータルを備え、授業スケジュール、カルテ提出、報酬計算、アカウント管理が 1 つのアプリで完結します。本リポジトリはポートフォリオ公開を想定した安全な構成とドキュメントを含みます。
+Home Teach App は、学習塾の運営を支援する Django 製の業務システムです。管理者・講師・生徒向けの 3 つのポータルを備え、授業スケジュール管理からカルテ提出、報酬締めまでを同一アプリで完結できます。ポートフォリオ公開を想定し、安全にデモ公開できる設定やドキュメントも含めています。
 
-## Overview
+## 機能ハイライト
+- **管理者ポータル**: 講師・生徒アカウントの発行、担当割り当て、授業スケジュールの編集、報酬締め処理、CSV / PDF 出力に対応しています。
+- **講師ポータル**: 直近授業のダッシュボード表示、授業カルテの下書き・提出、過去授業の検索、授業カルテ PDF のダウンロードが可能です。
+- **生徒ポータル**: 自身の授業予定をカレンダー順に閲覧できます。
+- **運用補助機能**: デモ用の読み取り専用モード、強制パスワード変更、アクセスログ／ダウンロードログの保存、監査向けミドルウェアなどを実装しています。
 
-- **Multi-portal UI**: `/admin_portal`, `/teacher_portal`, `/student_portal` で役割に応じたダッシュボードを提供。
-- **Reward & schedule operations**: 授業カルテの提出状況に応じて報酬を集計し、締め処理や PDF 出力が可能。
-- **Account lifecycle management**: 管理者は講師・生徒アカウントを登録・編集・削除でき、確認画面つきで安全に運用できます。
-- **Hardening for demos**: 読み取り専用モード、強制パスワード変更、監査ログなどコンプライアンス機能を内蔵。
-- **Bilingual docs**: 英語 / 日本語でセットアップ手順を用意し、公開デモや面談時の説明に活用できます。
-
-## Tech Stack
-
+## 技術スタック
 - Django 5.2 / Python 3.12
-- SQLite (デフォルト) — `.env` で他の DB に切り替え可能
-- HTML templates + Bootstrap + Alpine.js (最小限のインタラクション)
-- Pytest ベースの統合テスト (`tests/`)
+- SQLite (標準) ― `.env` で PostgreSQL などに切り替え可能
+- Django Templates + Bootstrap + Alpine.js（最小限の動的挙動）
+- Pytest による統合テスト (`tests/`)
 
-## Project Structure
-
+## ディレクトリ構成
 ```
-admin_portal/  … 管理者向け機能（登録、報酬締め、PDF 出力 など）
-teacher_portal/ … 授業カルテ提出やスケジュール調整
-student_portal/ … 生徒用の閲覧 UI
-personal_info/ … ドメインモデル（TeacherProfile, ClassSchedule, …）
-core/          … 共通ロジック（ミドルウェア、ユーティリティ、管理コマンド）
-docs/          … 運用手順やバックアップドリル
+admin_portal/   … 管理者向けビュー・フォーム
+teacher_portal/ … 講師向けビュー・PDF 出力ユーティリティ
+student_portal/ … 生徒向けビュー
+personal_info/  … 主要モデル（講師・生徒・授業・カルテ・報酬集計など）
+core/           … 共通ロジック（ミドルウェア、ユーザープロファイル、管理コマンド）
+docs/           … 運用手順やバックアップに関するドキュメント
 ```
 
-## Quickstart (Local Development)
-
+## ローカル開発の始め方
 ```bash
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
 python manage.py migrate
-python manage.py createsuperuser
+python manage.py createsuperuser  # 管理者アカウントを任意で作成
 python manage.py runserver
 ```
 
-- `.env` の `DJANGO_SECRET_KEY`、`DJANGO_ALLOWED_HOSTS` を自身の環境に合わせて変更。
-- `python manage.py createsuperuser` で開発用のアカウントを作成（任意で `seed_demo` コマンドを実行するとデモデータを投入可能）。
+- `.env` の `DJANGO_SECRET_KEY` や `DJANGO_ALLOWED_HOSTS` を自分の環境に合わせて更新してください。
+- デモ用の ID を用意したい場合は `python manage.py seed_demo` を実行します（`A_demo` と `T_demo` ユーザーが作成され、パスワードは `Demo!Pass1` です）。必要に応じて管理者ポータルから講師/生徒プロフィールを登録してください。
 
-## Demo Mode (Optional Public Sandbox)
-
-デモ公開時は環境変数 `DJANGO_SETTINGS_MODULE=config.settings_demo` を指定して起動します。読み取り専用モードや管理画面の秘匿 URL など、公開前提でのハードニングが有効化されます（管理者ロールは必要な削除操作も継続して実行できます）。
+## Demo モード（公開サンドボックス向け）
+デモ公開時は環境変数 `DJANGO_SETTINGS_MODULE=config.settings_demo` を指定して起動します。読み取り専用モードや秘匿管理 URL など、公開運用を想定したハードニングが有効化されます。
 
 ```bash
 export DJANGO_SETTINGS_MODULE=config.settings_demo
@@ -59,19 +48,18 @@ python manage.py seed_demo
 python manage.py runserver 127.0.0.1:8000
 ```
 
-| Account | Role | Notes |
-|---------|------|-------|
-| `A_demo / Demo!Pass1` | Staff (non-superuser) | 書き込みが可能な仮管理者 |
-| `T_demo / Demo!Pass1` | Teacher | 読み取り専用が基本 |
+| Account | Role | 備考 |
+|---------|------|------|
+| `A_demo / Demo!Pass1` | スタッフ（非スーパーユーザー） | デモ用管理者。主要機能の編集が可能 |
+| `T_demo / Demo!Pass1` | Teacher | 既存授業のカルテ編集が中心。読み取り専用が基本 |
 
-- ホスト名は `DEMO_HOSTS` (複数可) または `DEMO_HOST` で指定できます。未設定時でも `localhost` / `127.0.0.1` からアクセスできます。
+- 許可するホスト名は `DEMO_HOSTS`（複数可）または `DEMO_HOST` で設定します。未設定の場合でも `localhost` / `127.0.0.1` からアクセスできます。
 - HTTPS を強制できないローカル検証では `DEMO_FORCE_HTTPS=false` を指定してください。
 - デモ用管理サイトは `ADMIN_URL` 環境変数で指定したパスにマウントされます（例: `admin-8c1b3f1c/`）。公開資料に直接記載しないでください。
-- `python manage.py reset_demo` で DB の初期化とデモデータの再投入が実行されます。cron を利用して定期実行することで閲覧用データをクリーンに保てます。
+- `python manage.py reset_demo` でデータベースを初期化し、デモユーザーを再投入できます。定期的な実行で閲覧用データをクリーンに保てます。
 
-## Production Deployment
-
-本番運用時は `config/settings_prod.py` を利用し、HTTPS 前提のセキュリティ設定を有効化します。
+## 本番運用のポイント
+本番環境では `config/settings_prod.py` を利用し、HTTPS 前提のセキュリティ設定を有効化します。
 
 ```bash
 export DJANGO_SETTINGS_MODULE=config.settings_prod
@@ -84,34 +72,21 @@ python manage.py migrate
 python manage.py check --deploy
 ```
 
-- `SECURE_SSL_REDIRECT` / HSTS などの値は環境変数で上書き可能です（`.env.example` を参照）。
-- リバースプロキシ経由で TLS 終端する場合は `SECURE_PROXY_SSL_HEADER` が適切に設定されているか確認してください。
-- 上記コマンドは Django を公開する前に一度実行し、警告が解消されていることを確認します。
+- `SECURE_SSL_REDIRECT` や HSTS の値は環境変数で上書きできます（`.env.example` を参照）。
+- リバースプロキシ経由で TLS を終端する場合は `SECURE_PROXY_SSL_HEADER` が正しく設定されているか確認してください。
+- 公開前に `python manage.py check --deploy` を実行し、警告が出ないことを確認してください。
 
-## Running Tests
-
+## テスト
 ```bash
 pytest
 ```
 
-代表的なユースケース（カルテ提出、報酬締め、アクセス制御 など）をカバーする統合テストを含みます。Pull Request での品質担保に利用してください。
+授業カルテ提出フローやアクセス制御など主要ユースケースをカバーする統合テストが含まれています。Pull Request 時の回帰確認に活用できます。
 
-## Portfolio Tips
-
-- デモ環境は read-only が基本のため、面談ではスタッフ権限アカウントを共有し、特定の機能のみ編集できる点を説明すると安心感を与えられます。
-- テンプレートは Bootstrap ベースなので、必要に応じて UI スクリーンショットを `docs/` 配下に追加すると説明資料が整います。
-- デプロイ時は `.env` に本番用シークレットを設定し、`DJANGO_DEBUG=False` に変更してください。
-
-## 日本語セットアップガイド
-
-1. `python -m venv venv` → `source venv/bin/activate`
-2. `pip install -r requirements.txt`
-3. `.env.example` を `.env` にコピーし、`DJANGO_SECRET_KEY` を任意の値に変更
-4. `python manage.py migrate`
-5. `python manage.py seed_demo` または `python manage.py createsuperuser`
-6. `python manage.py runserver 127.0.0.1:8000`
-
-注意: 公開デモの場合は個人情報を入力しないよう、README や実際の画面に注意書きを表示してください。
+## 補足情報
+- デモ環境は原則読み取り専用です。面談などで編集操作を見せる場合はスタッフ権限アカウントを共有し、操作範囲をあらかじめ説明すると安心感を与えられます。
+- テンプレートは Bootstrap ベースなので、必要に応じて UI のスクリーンショットを `docs/` 配下に追加すると説明資料が整います。
+- 公開環境では `.env` に本番用シークレットを設定し、`DJANGO_DEBUG=False` に変更してください。
 
 ---
 

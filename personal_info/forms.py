@@ -8,6 +8,8 @@ from .models import (
     MaterialUsage,
     TeacherStudentAssignment,
 )
+
+
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
@@ -35,12 +37,16 @@ class ClassScheduleForm(forms.ModelForm):
     class Meta:
         model = ClassSchedule
         fields = [
-            "teacher", "student", "subject",
-            "class_date", "start_time", "end_time",
-            "status",              # ← ここに置換
-            "material",            # （モデルにあるなら残す）
-            "karte_summary",       # （モデルにあるなら残す）
-            "karte_detail",        # （モデルにあるなら残す）
+            "teacher",
+            "student",
+            "subject",
+            "class_date",
+            "start_time",
+            "end_time",
+            "status",
+            "material",
+            "karte_summary",
+            "karte_detail",
             "notes",
         ]
         widgets = {
@@ -52,7 +58,7 @@ class ClassScheduleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        #科目と生徒が存在しているの確認
+        # 科目と生徒の組み合わせが分かれば教材候補を絞り込む
         subject = self.instance.subject if self.instance else None
         student = None
         if self.instance and hasattr(self.instance, 'student_id'):
@@ -62,16 +68,16 @@ class ClassScheduleForm(forms.ModelForm):
                 student = None
 
         if subject and student:
-            # 生徒が過去に使った教材（subject付き）を取得
+            # 生徒が過去に使った教材（科目付き）を取得
             used_materials = TeachingMaterial.objects.filter(
                 id__in=MaterialUsage.objects.filter(student=student).values_list('material_id', flat=True),
                 subject=subject
             )
 
-            # その他の教材（subject付き）で未使用のもの
+            # まだ使っていない同科目の教材
             unused_materials = TeachingMaterial.objects.filter(subject=subject).exclude(id__in=used_materials)
 
-            # 優先順でクエリセットを結合
+            # 既存利用済みを優先して並べ替える
             combined_qs = list(used_materials) + list(unused_materials)
             self.fields['material'].queryset = TeachingMaterial.objects.filter(id__in=[m.id for m in combined_qs])
 
