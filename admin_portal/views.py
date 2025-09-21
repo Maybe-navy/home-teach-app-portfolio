@@ -11,6 +11,7 @@ from django.db import transaction
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from django.http import HttpResponse, HttpResponseForbidden
+from django.urls import reverse
 import os
 import secrets, string
 import sys
@@ -35,7 +36,7 @@ from personal_info.models import (
                                 RewardClosing, RewardClosingTeacher,
                                 TeacherStudentAssignment, ClassKarte,
                                 )
-from personal_info.forms import SubjectForm
+from personal_info.forms import SubjectForm, MaterialList
 from .forms import ClassScheduleForm
 from personal_info.utils import (
     closing_range,
@@ -101,6 +102,7 @@ def admin_dashboard(request):
         return HttpResponseForbidden("権限がありません")
     return render(request, 'admin_portal/admin_dashboard.html')
 
+
 def teacher_register(request):
     if request.method == "POST":
         form = TeacherRegistForm(request.POST)
@@ -144,6 +146,44 @@ def student_register(request):
 def is_admin(user):
     """ログイン済みユーザーが管理者アカウントか判定する。"""
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.user_type == 'admin'
+
+
+@login_required
+@user_passes_test(is_admin, login_url=None)
+def material_create_view(request):
+    """管理者向け: 教材情報を新規登録する。"""
+
+    next_url = request.POST.get("next") or request.GET.get("next", "")
+
+    if request.method == "POST":
+        form = MaterialList(request.POST)
+        form.fields["subject"].required = True
+        if form.is_valid():
+            material = form.save(commit=False)
+            material.created_by = request.user
+            material.save()
+
+            redirect_to = request.POST.get("next")
+            messages.success(request, "教材を登録しました。")
+            if redirect_to:
+                return redirect(redirect_to)
+            return redirect("personal_info:material_list")
+
+        messages.error(request, "入力内容に不備があります。赤字のエラーをご確認ください。")
+    else:
+        form = MaterialList()
+        form.fields["subject"].required = True
+
+    return render(
+        request,
+        "materials/material_create.html",
+        {
+            "form": form,
+            "next": next_url,
+            "default_back_url": reverse("personal_info:material_list"),
+        },
+    )
+
 
 @login_required
 def delete_schedule_view(request, schedule_id):
