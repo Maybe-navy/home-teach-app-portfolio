@@ -35,6 +35,7 @@ from personal_info.models import (
                                 Subject, RewardCategory, AdminProfile,
                                 RewardClosing, RewardClosingTeacher,
                                 TeacherStudentAssignment, ClassKarte,
+                                TeachingMaterial,
                                 )
 from personal_info.forms import SubjectForm, MaterialList
 from .forms import ClassScheduleForm
@@ -163,7 +164,7 @@ def material_create_view(request):
             material.created_by = request.user
             material.save()
 
-            redirect_to = request.POST.get("next")
+            redirect_to = next_url
             messages.success(request, "教材を登録しました。")
             if redirect_to:
                 return redirect(redirect_to)
@@ -181,6 +182,45 @@ def material_create_view(request):
             "form": form,
             "next": next_url,
             "default_back_url": reverse("personal_info:material_list"),
+            "page_title": "教材を新規登録",
+            "submit_label": "登録",
+            "form_description": "授業で使用する教材の情報を登録します。",
+        },
+    )
+
+
+@login_required
+@user_passes_test(is_admin, login_url=None)
+def material_edit_view(request, material_id: int):
+    """管理者向け: 既存の教材情報を更新する。"""
+
+    material = get_object_or_404(TeachingMaterial, pk=material_id)
+    next_url = request.POST.get("next") or request.GET.get("next", "")
+
+    if request.method == "POST":
+        form = MaterialList(request.POST, instance=material)
+        form.fields["subject"].required = True
+        if form.is_valid():
+            form.save()
+            messages.success(request, "教材情報を更新しました。")
+            if next_url:
+                return redirect(next_url)
+            return redirect("personal_info:material_list")
+        messages.error(request, "入力内容に不備があります。赤字のエラーをご確認ください。")
+    else:
+        form = MaterialList(instance=material)
+        form.fields["subject"].required = True
+
+    return render(
+        request,
+        "materials/material_create.html",
+        {
+            "form": form,
+            "next": next_url,
+            "default_back_url": reverse("personal_info:material_list"),
+            "page_title": "教材情報を編集",
+            "submit_label": "更新",
+            "form_description": f"{material.title} の情報を編集します。",
         },
     )
 

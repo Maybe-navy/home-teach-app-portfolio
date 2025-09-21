@@ -53,4 +53,25 @@ def edit_schedule_view(request, schedule_id):
 @login_required
 def material_list_view(request):
     materials = TeachingMaterial.objects.all().order_by('-created_at')
-    return render(request, 'personal_info/material_list.html', {'materials': materials})
+    profile = getattr(request.user, "userprofile", None)
+    user_type = getattr(profile, "user_type", "")
+    if user_type == "admin":
+        edit_url_name = "admin_portal:material_edit"
+        create_url_name = "admin_portal:material_create"
+    elif user_type == "teacher":
+        edit_url_name = "teacher_portal:teacher_material_edit"
+        create_url_name = "teacher_portal:teacher_material_create"
+    else:
+        edit_url_name = ""
+        create_url_name = ""
+
+    return render(
+        request,
+        'personal_info/material_list.html',
+        {
+            'materials': materials,
+            'user_type': user_type,
+            'material_edit_url_name': edit_url_name,
+            'material_create_url_name': create_url_name,
+        },
+    )

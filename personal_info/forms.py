@@ -18,7 +18,20 @@ class SubjectForm(forms.ModelForm):
 class MaterialList(forms.ModelForm):
     class Meta:
         model = TeachingMaterial
-        fields = ['title', 'subject', 'grade', 'publisher']
+        fields = ["title", "subject", "grade", "publisher", "description"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, (forms.Select, forms.SelectMultiple)):
+                base_class = "form-select"
+            else:
+                base_class = "form-control"
+            existing = field.widget.attrs.get("class", "").strip()
+            field.widget.attrs["class"] = (f"{existing} {base_class}" if existing else base_class).strip()
+
+        if "description" in self.fields:
+            self.fields["description"].widget.attrs.setdefault("rows", 4)
 
 class ClassScheduleForm(forms.ModelForm):
     class_date = forms.DateField(

@@ -1,26 +1,52 @@
 {% extends "base.html" %}
 {% block title %}教材一覧{% endblock %}
 {% block content %}
-<h1 class="h5 mb-3">教材一覧</h1>
-{% if request.user.is_authenticated and request.user.userprofile.user_type == 'admin' %}
-  <div class="d-flex justify-content-end mb-3">
-    <a class="btn btn-primary" href="{% url 'admin_portal:material_create' %}?next={{ request.get_full_path|urlencode }}">教材を追加</a>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <div>
+        <h1 class="h5 mb-1">教材一覧</h1>
+        <p class="text-muted small mb-0">登録済みの教材情報を確認・編集できます。</p>
+      </div>
+      {% if material_create_url_name %}
+        <a class="btn btn-primary" href="{% url material_create_url_name %}?next={{ request.get_full_path|urlencode }}">教材を追加</a>
+      {% endif %}
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover table-sm align-middle table-sticky mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>教材名</th>
+            <th>科目</th>
+            <th>推奨学年</th>
+            <th>出版社</th>
+            {% if material_edit_url_name %}
+              <th class="text-center" style="width: 110px;">操作</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for material in materials %}
+            <tr>
+              <td>{{ material.title }}</td>
+              <td>{{ material.subject|default:"-" }}</td>
+              <td>{{ material.get_grade_display|default:"-" }}</td>
+              <td>{{ material.publisher|default:"-" }}</td>
+              {% if material_edit_url_name %}
+                <td class="text-center">
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url material_edit_url_name material.id %}?next={{ request.get_full_path|urlencode }}">編集</a>
+                </td>
+              {% endif %}
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="{% if material_edit_url_name %}5{% else %}4{% endif %}" class="text-muted text-center">登録がありません。</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-{% endif %}
-<table class="table table-hover table-sm align-middle table-sticky">
-  <thead class="table-light"><tr><th>教材名</th><th>科目</th><th>推奨学年</th><th>出版社</th></tr></thead>
-  <tbody>
-    {% for material in materials %}
-      <tr>
-        <td>{{ material.title }}</td>
-        <td>{{ material.subject }}</td>
-        <td>{{ material.get_grade_display }}</td>
-        <td>{{ material.publisher }}</td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="4" class="text-muted">登録がありません。</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+</div>
 {% endblock %}
 

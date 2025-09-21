@@ -14,6 +14,7 @@ from personal_info.models import (
     StudentProfile,
     Subject,
     TeacherStudentAssignment,
+    TeachingMaterial,
 )
 from personal_info.forms import MaterialList
 from .forms import ClassKarteForm, TeacherScheduleEditForm
@@ -352,8 +353,10 @@ def create_material_view(request):
             material = form.save(commit=False)
             material.created_by = request.user
             material.save()
+            messages.success(request, "教材を登録しました。")
             redirect_to = next_url or 'teacher_portal:schedule_board'
             return redirect(redirect_to)
+        messages.error(request, "入力内容に不備があります。赤字のエラーをご確認ください。")
     else:
         form = MaterialList()
         form.fields['subject'].required = True
@@ -365,6 +368,43 @@ def create_material_view(request):
             'next': next_url,
             'is_teacher': True,
             'default_back_url': reverse('teacher_portal:schedule_board'),
+            'page_title': '教材を新規登録',
+            'submit_label': '登録',
+            'form_description': '授業で使用する教材の情報を登録します。',
+        },
+    )
+
+
+@login_required
+@user_passes_test(_is_teacher, login_url=None)
+def edit_material_view(request, material_id: int):
+    material = get_object_or_404(TeachingMaterial, pk=material_id)
+    next_url = request.POST.get("next") or request.GET.get("next", "")
+
+    if request.method == 'POST':
+        form = MaterialList(request.POST, instance=material)
+        form.fields['subject'].required = True
+        if form.is_valid():
+            form.save()
+            messages.success(request, "教材情報を更新しました。")
+            redirect_to = next_url or 'teacher_portal:schedule_board'
+            return redirect(redirect_to)
+        messages.error(request, "入力内容に不備があります。赤字のエラーをご確認ください。")
+    else:
+        form = MaterialList(instance=material)
+        form.fields['subject'].required = True
+
+    return render(
+        request,
+        'materials/material_create.html',
+        {
+            'form': form,
+            'next': next_url,
+            'is_teacher': True,
+            'default_back_url': reverse('teacher_portal:schedule_board'),
+            'page_title': '教材情報を編集',
+            'submit_label': '更新',
+            'form_description': f'{material.title} の情報を編集します。',
         },
     )
 

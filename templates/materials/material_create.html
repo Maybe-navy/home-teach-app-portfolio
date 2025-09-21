@@ -1,22 +1,43 @@
 {% extends "base.html" %}
-{% block title %}教材を新規登録{% endblock %}
+{% block title %}{{ page_title|default:"教材を新規登録" }}{% endblock %}
 
 {% block content %}
-<h1 class="mb-3">教材を新規登録</h1>
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h1 class="h5 mb-3">{{ page_title|default:"教材を新規登録" }}</h1>
+    {% if form_description %}
+      <p class="text-muted small mb-4">{{ form_description }}</p>
+    {% endif %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include "_form_errors.html" %}
 
-<form method="post" novalidate>
-  {% csrf_token %}
-  {% include "_form_errors.html" %}
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <div class="form-text">{{ field.help_text }}</div>
+          {% endif %}
+          {% if field.errors %}
+            <div class="text-danger small mt-1">
+              {% for e in field.errors %}
+                <div>{{ e }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
 
-  {{ form.as_p }}
+      {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+      {% endif %}
 
-  {% if next %}
-    <input type="hidden" name="next" value="{{ next }}">
-  {% endif %}
-
-  <div class="d-flex gap-2 mt-3">
-    <button type="submit" class="btn btn-primary">登録</button>
-    <a href="{{ next|default:request.META.HTTP_REFERER|default:default_back_url }}" class="btn btn-outline-secondary">戻る</a>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <button type="submit" class="btn btn-primary">{{ submit_label|default:"登録" }}</button>
+        <a href="{{ next|default:request.META.HTTP_REFERER|default:default_back_url }}" class="btn btn-outline-secondary">戻る</a>
+      </div>
+    </form>
   </div>
-</form>
+</div>
 {% endblock %}
