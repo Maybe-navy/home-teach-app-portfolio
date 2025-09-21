@@ -4,59 +4,79 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+
+
 TEACHER_GRADE = [
-    ('college_1', '大学１年生'),('college_2', '大学２年生'),('college_3', '大学３年生'),
-    ('college_4', '大学４年生'),('working_adult', '社会人'),
+    ("college_1", "大学１年生"),
+    ("college_2", "大学２年生"),
+    ("college_3", "大学３年生"),
+    ("college_4", "大学４年生"),
+    ("working_adult", "社会人"),
 ]
 
 STUDENT_GRADE = [
-    ('elementary_1', '小学１年生'),('elementary_2', '小学２年生'),('elementary_3', '小学３年生'),
-    ('elementary_4', '小学４年生'),('elementary_5', '小学５年生'),('elementary_6', '小学６年生'),
-    ('junior_1', '中学１年生'),('junior_2', '中学２年生'),('junior_3', '中学３年生'),
-    ('senior_1', '高校１年生'),('senior_2', '高校２年生'),('senior_3', '高校３年生'),
-    ('graduate', '既卒'),
+    ("elementary_1", "小学１年生"),
+    ("elementary_2", "小学２年生"),
+    ("elementary_3", "小学３年生"),
+    ("elementary_4", "小学４年生"),
+    ("elementary_5", "小学５年生"),
+    ("elementary_6", "小学６年生"),
+    ("junior_1", "中学１年生"),
+    ("junior_2", "中学２年生"),
+    ("junior_3", "中学３年生"),
+    ("senior_1", "高校１年生"),
+    ("senior_2", "高校２年生"),
+    ("senior_3", "高校３年生"),
+    ("graduate", "既卒"),
 ]
 
+
 class Subject(models.Model):
+    """指導科目を表すマスターモデル。"""
+
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
-    
-#講師報酬定義
+
+
 class RewardCategory(models.Model):
+    """講師報酬の区分と単価を管理する。"""
+
     CATEGORY_CHOICES = [
-        ('elementary', '小学生'),
-        ('junior', '中学生'),
-        ('high', '高校生'),
-        ('custom', '金額自由設定'),
+        ("elementary", "小学生"),
+        ("junior", "中学生"),
+        ("high", "高校生"),
+        ("custom", "金額自由設定"),
     ]
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, unique=True)
     reward_per_class = models.IntegerField(blank=True, null=True, verbose_name="１コマ当たりの報酬額")
 
     def __str__(self):
         return f"{self.get_category_display()} : ￥{self.reward_per_class or '自由設定'}"
-    
 
 
-#使用教材情報定義    
 class TeachingMaterial(models.Model):
-    title = models.CharField(max_length=100, unique=True, verbose_name='教材名')
-    subject = models.ForeignKey('Subject', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="関連科目")
-    grade = models.CharField(max_length=50, choices=STUDENT_GRADE, blank=True, verbose_name='推奨学年')
-    publisher = models.CharField(max_length=100, blank=True, verbose_name='出版社')
-    description = models.TextField(blank=True, verbose_name='説明（空欄可）')
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, verbose_name='教材情報登録者')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='教材情報登録月日')
+    """授業で利用する教材の情報。"""
+
+    title = models.CharField(max_length=100, unique=True, verbose_name="教材名")
+    subject = models.ForeignKey("Subject", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="関連科目")
+    grade = models.CharField(max_length=50, choices=STUDENT_GRADE, blank=True, verbose_name="推奨学年")
+    publisher = models.CharField(max_length=100, blank=True, verbose_name="出版社")
+    description = models.TextField(blank=True, verbose_name="説明（空欄可）")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="教材情報登録者")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="教材情報登録月日")
 
     def __str__(self):
         return self.title
 
-#管理者情報定義
+
 class AdminProfile(models.Model):
+    """管理者ユーザーの基本情報。"""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=False)
-    gender = models.CharField(max_length=6, choices=[('man', '男性'), ('female', '女性')], blank=False)
+    gender = models.CharField(max_length=6, choices=[("man", "男性"), ("female", "女性")], blank=False)
     age = models.PositiveIntegerField(validators=[MinValueValidator(18)], blank=False)
     address = models.CharField(max_length=100, blank=False)
     phone = models.CharField(max_length=13, blank=False)
@@ -65,11 +85,13 @@ class AdminProfile(models.Model):
     def __str__(self):
         return self.name
 
-#講師情報定義 
+
 class TeacherProfile(models.Model):
+    """講師ユーザーに紐づく詳細プロフィール。"""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=False)
-    gender = models.CharField(max_length=6, choices=[('man', '男性'), ('female', '女性')])
+    gender = models.CharField(max_length=6, choices=[("man", "男性"), ("female", "女性")])
     age = models.PositiveIntegerField(validators=[MinValueValidator(18)], blank=False)
     address = models.CharField(max_length=1000, blank=False)
     phone = models.CharField(max_length=13, blank=False)
@@ -81,11 +103,13 @@ class TeacherProfile(models.Model):
     def __str__(self):
         return self.name
 
-#生徒情報定義
+
 class StudentProfile(models.Model):
+    """生徒ユーザーに紐づく詳細プロフィール。"""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=False)
-    gender = models.CharField(max_length=6, choices=[('man', '男性'), ('female', '女性')])
+    gender = models.CharField(max_length=6, choices=[("man", "男性"), ("female", "女性")])
     age = models.PositiveIntegerField(validators=[MinValueValidator(6)], blank=False)
     address = models.CharField(max_length=100, blank=False)
     phone = models.CharField(max_length=13, blank=False)
@@ -99,17 +123,18 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def clean(self):
-        if self.reward_category and self.reward_category.category == 'custom':
+        if self.reward_category and self.reward_category.category == "custom":
             if not self.custom_reward_per_class:
                 raise ValidationError("金額自由設定の場合は報酬額の入力が必要です。")
 
 
 class TeacherStudentAssignment(models.Model):
+    """講師と生徒の担当関係および担当科目。"""
+
     teacher = models.ForeignKey("TeacherProfile", on_delete=models.CASCADE)
     student = models.ForeignKey("StudentProfile", on_delete=models.CASCADE)
-    # この講師-生徒の担当科目（複数可）
     subjects = models.ManyToManyField("Subject", blank=True, related_name="ts_assignments")
 
     class Meta:
@@ -122,8 +147,10 @@ class TeacherStudentAssignment(models.Model):
         s = getattr(self.student, "name", str(self.student_id))
         return f"{t} → {s}"
 
-#授業情報定義
+
 class ClassSchedule(models.Model):
+    """授業の予定および実施状況を保持する。"""
+
     teacher = models.ForeignKey(
         TeacherProfile, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -137,22 +164,25 @@ class ClassSchedule(models.Model):
     is_absent = models.BooleanField(default=False, help_text="欠席")
     is_tardy = models.BooleanField(default=False, help_text="遅刻")
     note = models.TextField(blank=True, default="", help_text="備考/実施メモ")
-    STATUS_PENDING = 'pending'
-    STATUS_SCHEDULED = 'scheduled'
-    STATUS_DONE = 'done'
+    STATUS_PENDING = "pending"
+    STATUS_SCHEDULED = "scheduled"
+    STATUS_DONE = "done"
     STATUS_CHOICES = [
-        (STATUS_PENDING, '保留'),
-        (STATUS_SCHEDULED, '未実施'),
-        (STATUS_DONE, '実施済'),
+        (STATUS_PENDING, "保留"),
+        (STATUS_SCHEDULED, "未実施"),
+        (STATUS_DONE, "実施済"),
     ]
     status = models.CharField(
-        max_length=10, choices=STATUS_CHOICES,
-        default=STATUS_PENDING, db_index=True, verbose_name='状態'
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+        db_index=True,
+        verbose_name="状態",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     material = models.ForeignKey(
-        TeachingMaterial, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='使用教材'
+        TeachingMaterial, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="使用教材"
     )
     karte_summary = models.CharField(max_length=200, blank=True, verbose_name="授業概要")
     karte_detail = models.TextField(blank=True, verbose_name="授業内容詳細")
@@ -189,8 +219,11 @@ class ClassSchedule(models.Model):
         teacher_name = getattr(self.teacher, "name", "-")
         subject_name = getattr(self.subject, "name", "-")
         return f"{self.class_date} | {self.student.name} | {subject_name} | {teacher_name}"
-    
+
+
 class ClassKarte(models.Model):
+    """授業カルテ（授業内容報告）を保持するモデル。"""
+
     schedule = models.OneToOneField(
         ClassSchedule, on_delete=models.CASCADE, related_name="karte", null=True, blank=True
     )
@@ -250,6 +283,8 @@ class ClassKarte(models.Model):
         return f"{self.class_date} | {self.student.name} | {self.subject} | {self.teacher.name}"
 
 class MaterialUsage(models.Model):
+    """生徒ごとの教材利用履歴。"""
+
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     material = models.ForeignKey(TeachingMaterial, on_delete=models.CASCADE)
     used_at = models.DateTimeField(auto_now_add=True)
@@ -259,6 +294,8 @@ class MaterialUsage(models.Model):
 
 
 class DownloadLog(models.Model):
+    """帳票ダウンロード等の操作を記録するログ。"""
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey(StudentProfile, on_delete=models.SET_NULL, null=True, blank=True)
     kind = models.CharField(max_length=50)
@@ -270,18 +307,25 @@ class DownloadLog(models.Model):
 
 
 class AccessLog(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="personal_access_logs")
+    """閲覧経路やレスポンスコードを残すアクセスログ。"""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="personal_access_logs",
+    )
     path = models.CharField(max_length=255)
     method = models.CharField(max_length=16)
     student = models.ForeignKey("StudentProfile", null=True, blank=True, on_delete=models.SET_NULL)
     teacher = models.ForeignKey("TeacherProfile", null=True, blank=True, on_delete=models.SET_NULL)
     status_code = models.IntegerField(default=200)
     created_at = models.DateTimeField(auto_now_add=True)
-    
-# 置き場所: personal_info/models.py
-from django.utils import timezone
+
 
 class RewardClosing(models.Model):
+    """報酬締め処理の実行履歴を表す。"""
+
     year = models.IntegerField()
     month = models.IntegerField()
     start_date = models.DateField()
@@ -295,11 +339,14 @@ class RewardClosing(models.Model):
     def __str__(self):
         return f"{self.year}-{self.month:02d} 締め"
 
+
 class RewardClosingTeacher(models.Model):
+    """締め期間内の講師ごとの報酬集計。"""
+
     closing = models.ForeignKey(RewardClosing, on_delete=models.CASCADE, related_name="teachers")
     teacher = models.ForeignKey(TeacherProfile, on_delete=models.PROTECT)
     confirmed_count = models.IntegerField()
-    unit_reward = models.IntegerField(null=True, blank=True)  # 生徒ごとに異なる場合はNone
+    unit_reward = models.IntegerField(null=True, blank=True)  # 生徒ごとに異なる場合は None
     total_reward = models.IntegerField()
 
     def __str__(self):

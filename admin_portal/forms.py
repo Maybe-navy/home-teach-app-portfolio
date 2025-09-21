@@ -35,11 +35,11 @@ class TeacherRegistForm(forms.ModelForm):
 
     @transaction.atomic
     def save(self, commit=True):
-        #ランダムID生成
+        # ランダムなユーザーIDを発行する
         username = generate_user_id("T")
         raw_password = generate_compliant_password(12)
 
-        #UserとProfileの登録
+        # 認証ユーザーと関連する UserProfile を作成
         user = User.objects.create_user(username=username, password=raw_password)
         profile, _ = UserProfile.objects.get_or_create(user=user)
         profile.user_type = "teacher"
@@ -53,12 +53,12 @@ class TeacherRegistForm(forms.ModelForm):
             "is_locked",
         ])
 
-        #Teacher情報の登録
+        # TeacherProfile 本体を保存
         teacher = super().save(commit=False)
         teacher.user = user
         if commit:
             teacher.save()
-            self.save_m2m()  # subjectsの ManyToMnay 保存
+            self.save_m2m()  # subjects の ManyToMany 関係を保存
         return user, raw_password
 
 class StudentRegistForm(forms.ModelForm):
@@ -103,7 +103,7 @@ class StudentRegistForm(forms.ModelForm):
         student.user = user
         if commit:
             student.save()
-            self.save_m2m()  # subjectsの ManyToMnay 保存
+            self.save_m2m()  # subjects の ManyToMany 関係を保存
         return user, raw_password
     
 class ScheduleSearchForm(forms.Form):
@@ -114,16 +114,16 @@ class ScheduleSearchForm(forms.Form):
 class RewardCategoryForm(forms.ModelForm):
     class Meta:
         model = RewardCategory
-        fields = ['category', 'reward_per_class']  # ← categoryは表示するが…
+        fields = ['category', 'reward_per_class']  # カテゴリ値は表示のみ
         widgets = {
             'reward_per_class': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # ← Djangoのフィールド側で disabled を指定（POST値は無視して instance 値が使われる）
+        # カテゴリ種別は変更不可のためフォームからの更新を禁止
         self.fields['category'].disabled = True
-        # styling
+        # 表示を Bootstrap に合わせる
         self.fields['category'].widget.attrs.update({'class': 'form-select'})
 
     def clean_reward_per_class(self):
@@ -203,7 +203,7 @@ class RewardCategoryCreateForm(forms.ModelForm):
         # 何も残っていない場合はメッセージを表示用に help_text を付与
         if not remain:
             self.fields['category'].help_text = 'すべてのカテゴリが作成済みです。'
-        # styling for reward_per_class
+        # 報酬額入力欄も Bootstrap のスタイルに合わせる
         self.fields['reward_per_class'].widget = forms.NumberInput(attrs={'class': 'form-control', 'min': '0'})
 
     def clean(self):

@@ -3,8 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.http import HttpResponseForbidden
-# for temporary access tokens via search
-from django.core import signing
+from django.core import signing  # 生徒検索用の一時トークン生成に使用
 from django.core.signing import BadSignature, SignatureExpired
 from personal_info.models import (
     ClassSchedule,
@@ -48,7 +47,7 @@ def _is_teacher(user) -> bool:
 BOM_UTF8 = "\ufeff"
 
 _STUDENT_SEARCH_SALT = "teacher-portal-student-access"
-_STUDENT_SEARCH_MAX_AGE = 300  # seconds (5 minutes)
+_STUDENT_SEARCH_MAX_AGE = 300  # 有効期限は 5 分
 
 
 def _build_student_search_token(user_id: int, student_id: int) -> str:
