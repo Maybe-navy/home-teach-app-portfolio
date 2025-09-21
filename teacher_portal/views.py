@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.core import signing  # 生徒検索用の一時トークン生成に使用
 from django.core.signing import BadSignature, SignatureExpired
+from django.urls import reverse
 from personal_info.models import (
     ClassSchedule,
     MaterialUsage,
@@ -343,7 +344,7 @@ def karte_view(request, schedule_id):
 @login_required
 @user_passes_test(_is_teacher, login_url=None)
 def create_material_view(request):
-    next_url = request.GET.get('next', '')
+    next_url = request.POST.get("next") or request.GET.get("next", "")
     if request.method == 'POST':
         form = MaterialList(request.POST)
         form.fields['subject'].required = True
@@ -351,16 +352,21 @@ def create_material_view(request):
             material = form.save(commit=False)
             material.created_by = request.user
             material.save()
-            redirect_to = request.POST.get('next') or 'teacher_portal:schedule_board'
+            redirect_to = next_url or 'teacher_portal:schedule_board'
             return redirect(redirect_to)
     else:
         form = MaterialList()
         form.fields['subject'].required = True
-    return render(request, 'teacher_portal/material_create.html', {
-        'form': form,
-        'next': next_url,
-        'is_teacher': True,
-    })
+    return render(
+        request,
+        'materials/material_create.html',
+        {
+            'form': form,
+            'next': next_url,
+            'is_teacher': True,
+            'default_back_url': reverse('teacher_portal:schedule_board'),
+        },
+    )
 
 # 講師の担当授業確認（検索つき）
 @login_required

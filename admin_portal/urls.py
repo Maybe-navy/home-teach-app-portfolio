@@ -21,6 +21,7 @@ from .views import (
                      assignment_bulk_view, assignment_template_csv, attendance_dashboard,
                      assignment_subjects_edit, access_log_list_view,
                      karte_reopen_view, schedule_board_view, karte_pdf_admin, karte_view_admin,
+                     material_create_view,
                      )
 from personal_info.views import edit_schedule_view
 
@@ -34,6 +35,7 @@ urlpatterns = [
     path('schedule/create/', schedule_create_view, name='schedule_create'),
     path('schedule/edit/<int:schedule_id>/', edit_schedule_view, name='edit_schedule'),
     path('schedule/delete/<int:schedule_id>/', delete_schedule_view, name='delete_schedule'),
+    path('materials/create/', material_create_view, name='material_create'),
     path('schedules/<int:schedule_id>/karte/pdf/', karte_pdf_admin, name='karte_pdf_admin'),
     path('schedules/<int:schedule_id>/karte/', karte_view_admin, name='karte_view_admin'),
     path('subjects_delete/<int:subject_id>/', delete_subject, name='delete_subject'),
