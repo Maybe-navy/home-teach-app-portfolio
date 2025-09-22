@@ -1,27 +1,46 @@
 {% extends "base.html" %}
-{% block title %}報酬設定{% endblock %}
+{% block title %}報酬・請求設定{% endblock %}
 {% block content %}
 
-<h1 class="h4 mb-3">報酬設定</h1>
+<h1 class="h4 mb-3">報酬・請求設定</h1>
 
-<div class="mb-3 d-flex gap-2">
-  <a class="btn btn-outline-primary" href="{% url 'admin_portal:reward_category_list' %}">報酬カテゴリの編集</a>
+<div class="mb-3 d-flex flex-wrap gap-2">
+  <a class="btn btn-outline-primary" href="{% url 'admin_portal:reward_category_list' %}">講師報酬カテゴリの編集</a>
+  <a class="btn btn-outline-primary" href="{% url 'admin_portal:billing_category_list' %}">生徒請求カテゴリの編集</a>
   <a class="btn btn-outline-primary" href="{% url 'admin_portal:student_reward_list' %}">生徒ごとの請求/報酬設定</a>
   <a class="btn btn-link" href="{% url 'admin_portal:admin_dashboard' %}">管理者ダッシュボードへ戻る</a>
-  </div>
+</div>
 
-<div class="card">
-  <div class="card-body">
-    <h2 class="h6">現在のカテゴリ設定</h2>
-    <ul class="mb-0">
-      {% for c in cats %}
-        <li>{{ c.get_category_display }} … ￥{{ c.reward_per_class|default:"（自由設定）" }}</li>
-      {% empty %}
-        <li class="text-muted">未設定です。</li>
-      {% endfor %}
-    </ul>
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h6">講師報酬カテゴリ</h2>
+        <ul class="mb-0">
+          {% for c in reward_cats %}
+            <li>{{ c.get_category_display }} … ￥{{ c.reward_per_class|default:"（自由設定）" }}</li>
+          {% empty %}
+            <li class="text-muted">未設定です。</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
   </div>
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h6">生徒請求カテゴリ</h2>
+        <ul class="mb-0">
+          {% for c in billing_cats %}
+            <li>{{ c.get_category_display }} … ￥{{ c.fee_per_class|default:"（自由設定）" }}</li>
+          {% empty %}
+            <li class="text-muted">未設定です。</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
   </div>
+</div>
 
 {% endblock %}
 

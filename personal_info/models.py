@@ -31,6 +31,14 @@ STUDENT_GRADE = [
 ]
 
 
+FEE_CATEGORY_CHOICES = [
+    ("elementary", "小学生"),
+    ("junior", "中学生"),
+    ("high", "高校生"),
+    ("custom", "金額自由設定"),
+]
+
+
 class Subject(models.Model):
     """指導科目を表すマスターモデル。"""
 
@@ -43,17 +51,23 @@ class Subject(models.Model):
 class RewardCategory(models.Model):
     """講師報酬の区分と単価を管理する。"""
 
-    CATEGORY_CHOICES = [
-        ("elementary", "小学生"),
-        ("junior", "中学生"),
-        ("high", "高校生"),
-        ("custom", "金額自由設定"),
-    ]
+    CATEGORY_CHOICES = FEE_CATEGORY_CHOICES
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, unique=True)
     reward_per_class = models.IntegerField(blank=True, null=True, verbose_name="１コマ当たりの報酬額")
 
     def __str__(self):
         return f"{self.get_category_display()} : ￥{self.reward_per_class or '自由設定'}"
+
+
+class BillingCategory(models.Model):
+    """生徒請求額の区分と単価を管理する。"""
+
+    CATEGORY_CHOICES = FEE_CATEGORY_CHOICES
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, unique=True)
+    fee_per_class = models.IntegerField(blank=True, null=True, verbose_name="１コマ当たりの請求額")
+
+    def __str__(self):
+        return f"{self.get_category_display()} : ￥{self.fee_per_class or '自由設定'}"
 
 
 class TeachingMaterial(models.Model):
@@ -119,7 +133,14 @@ class StudentProfile(models.Model):
     subjects = models.ManyToManyField(Subject, blank=True)
     reward_category = models.ForeignKey(RewardCategory, on_delete=models.SET_NULL, null=True, verbose_name="報酬区分（講師向け）")
     custom_reward_per_class = models.IntegerField(null=True, blank=True, verbose_name="自由報酬額（１コマ）")
-    billing_per_class = models.IntegerField(null=True, blank=True, verbose_name="生徒への請求額（１コマ）")
+    billing_category = models.ForeignKey(
+        "BillingCategory",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="請求区分（生徒向け）",
+    )
+    custom_billing_per_class = models.IntegerField(null=True, blank=True, verbose_name="自由請求額（１コマ）")
 
     def __str__(self):
         return self.name
@@ -128,6 +149,18 @@ class StudentProfile(models.Model):
         if self.reward_category and self.reward_category.category == "custom":
             if not self.custom_reward_per_class:
                 raise ValidationError("金額自由設定の場合は報酬額の入力が必要です。")
+        if self.billing_category and self.billing_category.category == "custom":
+            if not self.custom_billing_per_class:
+                raise ValidationError("金額自由設定の場合は請求額の入力が必要です。")
+
+    @property
+    def billing_per_class(self):
+        """請求額（１コマ）の実効値を返す。"""
+        if self.billing_category:
+            if self.billing_category.category == "custom":
+                return self.custom_billing_per_class
+            return self.billing_category.fee_per_class
+        return self.custom_billing_per_class
 
 
 class TeacherStudentAssignment(models.Model):

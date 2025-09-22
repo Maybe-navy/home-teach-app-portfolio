@@ -29,9 +29,7 @@
         {% with up=u.userprofile %}
         <tr>
           <td>{{ u.username }}</td>
-          <td>
-            {{ u.teacherprofile.name|default:u.adminprofile.name|default:"-" }}
-          </td>
+          <td>{{ u.display_name }}</td>
           <td>{{ up.get_user_type_display }}</td>
           <td>{{ up.failed_login_attempts|default:0 }}</td>
           <td>

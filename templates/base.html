@@ -26,7 +26,7 @@
             {% elif role == 'teacher' %}
               <a class="nav-link text-light" href="{% url 'teacher_portal:teacher_dashboard' %}">講師</a>
             {% elif role == 'student' %}
-              {# 生徒向けメニューがあればここに追加 #}
+              <a class="nav-link text-light" href="{% url 'student_portal:my_schedule_list' %}">生徒</a>
             {% endif %}
             <span class="navbar-text text-light">{{ request.user|display_name }}</span>
             <form method="post" action="{% url 'logout' %}" class="d-inline">

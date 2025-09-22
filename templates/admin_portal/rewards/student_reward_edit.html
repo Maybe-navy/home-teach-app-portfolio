@@ -11,15 +11,25 @@
       {% include "_form_errors.html" %}
 
       <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label">{{ form.billing_per_class.label }}</label>
-          {{ form.billing_per_class }}
+        <div class="col-md-6">
+          <label class="form-label">{{ form.billing_category.label }}</label>
+          {{ form.billing_category }}
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
+          <label class="form-label">{{ form.custom_billing_per_class.label }}</label>
+          {{ form.custom_billing_per_class }}
+          {% if form.fields.custom_billing_per_class.help_text %}
+            <div class="form-text">{{ form.fields.custom_billing_per_class.help_text }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
           <label class="form-label">{{ form.reward_category.label }}</label>
           {{ form.reward_category }}
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label class="form-label">{{ form.custom_reward_per_class.label }}</label>
           {{ form.custom_reward_per_class }}
           {% if form.fields.custom_reward_per_class.help_text %}
