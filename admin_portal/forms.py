@@ -8,6 +8,7 @@ from personal_info.models import (
     TEACHER_GRADE,
     Subject,
     RewardCategory,
+    BillingCategory,
     ClassSchedule,
 )
 from core.utils import generate_user_id, generate_compliant_password
@@ -136,21 +137,34 @@ class RewardCategoryForm(forms.ModelForm):
 class StudentRewardForm(forms.ModelForm):
     class Meta:
         model = StudentProfile
-        fields = ['billing_per_class', 'reward_category', 'custom_reward_per_class']
+        fields = [
+            'billing_category',
+            'custom_billing_per_class',
+            'reward_category',
+            'custom_reward_per_class',
+        ]
         widgets = {
-            'billing_per_class': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'billing_category': forms.Select(attrs={'class': 'form-select'}),
+            'custom_billing_per_class': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
             'reward_category': forms.Select(attrs={'class': 'form-select'}),
             'custom_reward_per_class': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
         }
         help_texts = {
+            'custom_billing_per_class': '請求区分が「金額自由設定」の場合に入力してください。',
             'custom_reward_per_class': '報酬区分が「金額自由設定」の場合に入力してください。'
         }
+
     def clean(self):
         cleaned = super().clean()
         rc = cleaned.get('reward_category')
-        custom = cleaned.get('custom_reward_per_class')
-        if rc and rc.category == 'custom' and not custom:
+        custom_reward = cleaned.get('custom_reward_per_class')
+        if rc and rc.category == 'custom' and not custom_reward:
             self.add_error('custom_reward_per_class', '金額自由設定を選んだ場合は必須です。')
+
+        bc = cleaned.get('billing_category')
+        custom_billing = cleaned.get('custom_billing_per_class')
+        if bc and bc.category == 'custom' and not custom_billing:
+            self.add_error('custom_billing_per_class', '金額自由設定を選んだ場合は必須です。')
         return cleaned
 
 
@@ -213,13 +227,55 @@ class RewardCategoryCreateForm(forms.ModelForm):
             # 競合防止（同時作成など）
             raise forms.ValidationError('このカテゴリは既に作成済みです。')
         return cleaned
+
+
+class BillingCategoryForm(forms.ModelForm):
+    class Meta:
+        model = BillingCategory
+        fields = ['category', 'fee_per_class']
+        widgets = {
+            'fee_per_class': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].disabled = True
+        self.fields['category'].widget.attrs.update({'class': 'form-select'})
+
+
+class BillingCategoryCreateForm(forms.ModelForm):
+    class Meta:
+        model = BillingCategory
+        fields = ['category', 'fee_per_class']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        created = set(BillingCategory.objects.values_list('category', flat=True))
+        base_choices = BillingCategory._meta.get_field('category').choices or []
+        remain = [(v, lbl) for v, lbl in base_choices if v not in created]
+        self.fields['category'] = forms.ChoiceField(
+            choices=remain,
+            label='区分',
+            required=True,
+            widget=forms.Select(attrs={'class': 'form-select'}),
+        )
+        if not remain:
+            self.fields['category'].help_text = 'すべてのカテゴリが作成済みです。'
+        self.fields['fee_per_class'].widget = forms.NumberInput(attrs={'class': 'form-control', 'min': '0'})
+
+    def clean(self):
+        cleaned = super().clean()
+        cat = cleaned.get('category')
+        if cat and BillingCategory.objects.filter(category=cat).exists():
+            raise forms.ValidationError('このカテゴリは既に作成済みです。')
+        return cleaned
     
 class AccountStatusSearchForm(forms.Form):
     q = forms.CharField(label='ユーザーID/氏名 検索', required=False)
     only_locked = forms.BooleanField(label='ロック中のみ', required=False, initial=True)
     user_type = forms.ChoiceField(
         label='種別', required=False,
-        choices=[('', 'すべて'), ('admin', '管理者'), ('teacher', '講師')]
+        choices=[('', 'すべて'), ('admin', '管理者'), ('teacher', '講師'), ('student', '生徒')]
     )
 
 class TeacherEditForm(forms.ModelForm):
@@ -244,7 +300,7 @@ class StudentEditForm(forms.ModelForm):
         model = StudentProfile
         fields = [
             'name','gender','age','address','phone','email','school','grade','subjects',
-            'reward_category','custom_reward_per_class','billing_per_class'
+            'reward_category','custom_reward_per_class','billing_category','custom_billing_per_class'
         ]
 
     def clean(self):
@@ -253,6 +309,10 @@ class StudentEditForm(forms.ModelForm):
         custom = cleaned.get('custom_reward_per_class')
         if rc and rc.category == 'custom' and not custom:
             self.add_error('custom_reward_per_class', '報酬区分が「金額自由設定」の場合は金額の入力が必須です。')
+        bc = cleaned.get('billing_category')
+        custom_billing = cleaned.get('custom_billing_per_class')
+        if bc and bc.category == 'custom' and not custom_billing:
+            self.add_error('custom_billing_per_class', '請求区分が「金額自由設定」の場合は金額の入力が必須です。')
         return cleaned
 
 

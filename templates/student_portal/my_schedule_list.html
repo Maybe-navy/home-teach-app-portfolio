@@ -1,24 +1,40 @@
 {% extends "base.html" %}
 {% block title %}自分の授業予定{% endblock %}
 {% block content %}
-  <h1>自分の授業予定</h1>
-  <p>生徒: <strong>{{ student.name }}</strong></p>
+<div class="card">
+  <div class="card-body">
+    <h1 class="h4 mb-1">自分の授業予定</h1>
+    <p class="text-muted mb-0">生徒: <strong>{{ student.name }}</strong></p>
+  </div>
   {% if schedules %}
-    <table>
-      <thead><tr><th>予定日</th><th>開始</th><th>終了</th><th>講師名</th><th>科目名</th></tr></thead>
-      <tbody>
-        {% for sc in schedules %}
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-dark text-white">
           <tr>
-            <td>{{ sc.class_date|date:"Y-m-d" }}</td>
-            <td>{{ sc.start_time|time:"H:i" }}</td>
-            <td>{{ sc.end_time|time:"H:i" }}</td>
-            <td>{{ sc.teacher.name }}</td>
-            <td>{% if sc.subject %}{{ sc.subject.name }}{% else %}-{% endif %}</td>
+            <th scope="col">予定日</th>
+            <th scope="col">開始</th>
+            <th scope="col">終了</th>
+            <th scope="col">講師名</th>
+            <th scope="col">科目名</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for sc in schedules %}
+            <tr>
+              <td>{{ sc.class_date|date:"Y-m-d" }}</td>
+              <td>{{ sc.start_time|time:"H:i" }}</td>
+              <td>{{ sc.end_time|time:"H:i" }}</td>
+              <td>{{ sc.teacher.name }}</td>
+              <td>{% if sc.subject %}{{ sc.subject.name }}{% else %}<span class="text-muted">未設定</span>{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
-    <p>予定はありません。</p>
+    <div class="card-body border-top text-center text-muted">
+      現在表示できる授業予定はありません。
+    </div>
   {% endif %}
+</div>
 {% endblock %}

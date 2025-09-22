@@ -7,7 +7,14 @@ def get_teacher_reward(student):
     return student.reward_category.reward_per_class if student.reward_category else 0
 
 def get_student_billing(student):
-    return student.billing_per_class or 0
+    billing_category = getattr(student, 'billing_category', None)
+    custom = getattr(student, 'custom_billing_per_class', None)
+
+    if billing_category:
+        if billing_category.category == 'custom':
+            return custom or 0
+        return billing_category.fee_per_class or 0
+    return custom or 0
 
 def closing_range(year: int, month: int):
     """

@@ -22,7 +22,14 @@
     <table class="table table-sm table-hover mb-0">
       <thead>
         <tr>
-          <th>生徒名</th><th>学年</th><th>請求額(1コマ)</th><th>報酬区分</th><th>自由報酬額</th><th style="width:120px">操作</th>
+          <th>生徒名</th>
+          <th>学年</th>
+          <th>請求区分</th>
+          <th>請求額(1コマ)</th>
+          <th>自由請求額</th>
+          <th>報酬区分</th>
+          <th>自由報酬額</th>
+          <th style="width:120px">操作</th>
         </tr>
       </thead>
       <tbody>
@@ -30,13 +37,15 @@
           <tr>
             <td>{{ s.name }}</td>
             <td>{{ s.get_grade_display }}</td>
-            <td>{{ s.billing_per_class|default:"-" }}</td>
-            <td>{{ s.reward_category.get_category_display }}</td>
-            <td>{{ s.custom_reward_per_class|default:"-" }}</td>
+            <td>{% if s.billing_category %}{{ s.billing_category.get_category_display }}{% else %}-{% endif %}</td>
+            <td>{% if s.billing_per_class is not None %}￥{{ s.billing_per_class|floatformat:0 }}{% else %}-{% endif %}</td>
+            <td>{% if s.custom_billing_per_class %}￥{{ s.custom_billing_per_class|floatformat:0 }}{% else %}-{% endif %}</td>
+            <td>{% if s.reward_category %}{{ s.reward_category.get_category_display }}{% else %}-{% endif %}</td>
+            <td>{% if s.custom_reward_per_class %}￥{{ s.custom_reward_per_class|floatformat:0 }}{% else %}-{% endif %}</td>
             <td><a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_portal:student_reward_edit' s.id %}">編集</a></td>
           </tr>
         {% empty %}
-          <tr><td colspan="6" class="text-muted">該当なし</td></tr>
+          <tr><td colspan="8" class="text-muted">該当なし</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -54,7 +63,7 @@
 </div>
 
 <div class="mt-3">
-  <a class="btn btn-link px-0" href="{% url 'admin_portal:reward_settings_top' %}">← 報酬設定トップ</a>
+  <a class="btn btn-link px-0" href="{% url 'admin_portal:reward_settings_top' %}">← 設定トップ</a>
 </div>
 
 {% endblock %}

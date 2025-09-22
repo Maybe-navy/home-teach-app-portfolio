@@ -25,7 +25,9 @@
   </tr>
   <tr><th>報酬区分</th><td>{% if student.reward_category %}{{ student.reward_category.get_category_display }}{% else %}<span class="text-muted">未設定</span>{% endif %}</td></tr>
   <tr><th>自由報酬額</th><td>{% if student.custom_reward_per_class %}￥{{ student.custom_reward_per_class|floatformat:0 }}{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
-  <tr><th>請求額（1コマ）</th><td>{% if student.billing_per_class %}￥{{ student.billing_per_class|floatformat:0 }}{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
+  <tr><th>請求区分</th><td>{% if student.billing_category %}{{ student.billing_category.get_category_display }}{% else %}<span class="text-muted">未設定</span>{% endif %}</td></tr>
+  <tr><th>請求額（1コマ）</th><td>{% if student.billing_per_class is not None %}￥{{ student.billing_per_class|floatformat:0 }}{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
+  <tr><th>自由請求額</th><td>{% if student.custom_billing_per_class %}￥{{ student.custom_billing_per_class|floatformat:0 }}{% else %}<span class="text-muted">—</span>{% endif %}</td></tr>
   </table>
 
 <h5 class="mt-4">授業予定（直近10件）</h5>

@@ -16,6 +16,7 @@ import os
 import secrets, string
 import sys
 from django.core.signing import dumps, loads, BadSignature, SignatureExpired
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.conf import settings
 from pathlib import Path
@@ -24,19 +25,34 @@ from datetime import date
 from collections import defaultdict
 
 from .forms import (
-                    TeacherRegistForm, StudentRegistForm,
-                    RewardCategoryForm, StudentRewardForm, RewardCategoryCreateForm,
-                    AccountStatusSearchForm, TeacherEditForm, StudentEditForm,
-                    CSVUploadForm, AssignmentCreateForm
-                    )
+    TeacherRegistForm,
+    StudentRegistForm,
+    RewardCategoryForm,
+    StudentRewardForm,
+    RewardCategoryCreateForm,
+    BillingCategoryForm,
+    BillingCategoryCreateForm,
+    AccountStatusSearchForm,
+    TeacherEditForm,
+    StudentEditForm,
+    CSVUploadForm,
+    AssignmentCreateForm,
+)
 
 from personal_info.models import (
-                                TeacherProfile, StudentProfile, ClassSchedule,
-                                Subject, RewardCategory, AdminProfile,
-                                RewardClosing, RewardClosingTeacher,
-                                TeacherStudentAssignment, ClassKarte,
-                                TeachingMaterial,
-                                )
+    TeacherProfile,
+    StudentProfile,
+    ClassSchedule,
+    Subject,
+    RewardCategory,
+    BillingCategory,
+    AdminProfile,
+    RewardClosing,
+    RewardClosingTeacher,
+    TeacherStudentAssignment,
+    ClassKarte,
+    TeachingMaterial,
+)
 from personal_info.forms import SubjectForm, MaterialList
 from .forms import ClassScheduleForm
 from personal_info.utils import (
@@ -556,14 +572,26 @@ def reward_report_detail(request, teacher_id):
 @login_required
 @user_passes_test(is_admin)
 def reward_settings_top(request):
-    cats = RewardCategory.objects.all().order_by('category')
-    return render(request, 'admin_portal/rewards/reward_settings_top.html', {'cats': cats})
+    reward_cats = RewardCategory.objects.all().order_by('category')
+    billing_cats = BillingCategory.objects.all().order_by('category')
+    return render(
+        request,
+        'admin_portal/rewards/reward_settings_top.html',
+        {'reward_cats': reward_cats, 'billing_cats': billing_cats},
+    )
 
 @login_required
 @user_passes_test(is_admin)
 def reward_category_list(request):
     cats = RewardCategory.objects.all().order_by('category')
     return render(request, 'admin_portal/rewards/reward_category_list.html', {'cats': cats})
+
+
+@login_required
+@user_passes_test(is_admin)
+def billing_category_list(request):
+    cats = BillingCategory.objects.all().order_by('category')
+    return render(request, 'admin_portal/rewards/billing_category_list.html', {'cats': cats})
 
 @login_required
 @user_passes_test(is_admin)
@@ -579,13 +607,28 @@ def reward_category_edit(request, pk):
         form = RewardCategoryForm(instance=cat)
     return render(request, 'admin_portal/rewards/reward_category_edit.html', {'form': form, 'cat': cat})
 
+
+@login_required
+@user_passes_test(is_admin)
+def billing_category_edit(request, pk):
+    cat = get_object_or_404(BillingCategory, pk=pk)
+    if request.method == 'POST':
+        form = BillingCategoryForm(request.POST, instance=cat)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '請求カテゴリを更新しました。')
+            return redirect('admin_portal:billing_category_list')
+    else:
+        form = BillingCategoryForm(instance=cat)
+    return render(request, 'admin_portal/rewards/billing_category_edit.html', {'form': form, 'cat': cat})
+
 @login_required
 @user_passes_test(is_admin)
 def student_reward_list(request):
     q_name = request.GET.get('name', '').strip()
     q_grade = request.GET.get('grade', '').strip()
 
-    qs = StudentProfile.objects.select_related('reward_category').all().order_by('name')
+    qs = StudentProfile.objects.select_related('reward_category', 'billing_category').all().order_by('name')
     if q_name:
         qs = qs.filter(name__icontains=q_name)
     if q_grade:
@@ -631,13 +674,31 @@ def reward_category_create(request):
         form = RewardCategoryCreateForm()
     return render(request, 'admin_portal/rewards/reward_category_form.html', {'form': form, 'mode': 'create'})
 
+
+@login_required
+@user_passes_test(is_admin)
+def billing_category_create(request):
+    if request.method == 'POST':
+        form = BillingCategoryCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '請求カテゴリを作成しました。')
+            return redirect('admin_portal:billing_category_list')
+    else:
+        form = BillingCategoryCreateForm()
+    return render(
+        request,
+        'admin_portal/rewards/billing_category_form.html',
+        {'form': form, 'mode': 'create'},
+    )
+
 @login_required
 @user_passes_test(is_admin)
 def account_status_list(request):
     form = AccountStatusSearchForm(request.GET or None)
 
     qs = (User.objects
-          .select_related('userprofile', 'teacherprofile', 'adminprofile')  # 逆OneToOneもOK
+          .select_related('userprofile', 'teacherprofile', 'adminprofile', 'studentprofile')  # 逆OneToOneもOK
           .order_by('username'))
 
     if form.is_valid():
@@ -646,6 +707,7 @@ def account_status_list(request):
             qs = qs.filter(
                 Q(username__icontains=q) |
                 Q(teacherprofile__name__icontains=q) |
+                Q(studentprofile__name__icontains=q) |
                 Q(adminprofile__name__icontains=q)
             )
         utype = form.cleaned_data.get('user_type')
@@ -659,6 +721,24 @@ def account_status_list(request):
         qs = qs.filter(userprofile__is_locked=True)
 
     page_obj = Paginator(qs, 25).get_page(request.GET.get('page'))
+
+    def _profile_name(user, attr):
+        try:
+            profile = getattr(user, attr)
+        except ObjectDoesNotExist:
+            return None
+        return getattr(profile, 'name', None)
+
+    for user in page_obj.object_list:
+        name = (
+            _profile_name(user, 'teacherprofile')
+            or _profile_name(user, 'studentprofile')
+            or _profile_name(user, 'adminprofile')
+        )
+        if not name:
+            full_name = user.get_full_name()
+            name = full_name or user.username
+        user.display_name = name
 
     return render(request, 'admin_portal/accounts/account_status_list.html', {
         'form': form, 'page_obj': page_obj,
